@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
+  PhoneLogin: undefined;
   ForgotPassword: undefined;
   LegalTerms: undefined;
   PrivacyPolicy: undefined;
@@ -50,6 +51,10 @@ export type SignInScreenProps = NativeStackScreenProps<
 export type SignUpScreenProps = NativeStackScreenProps<
   AuthStackParamList,
   "SignUp"
+>;
+export type PhoneLoginScreenProps = NativeStackScreenProps<
+  AuthStackParamList,
+  "PhoneLogin"
 >;
 export type ForgotPasswordScreenProps = NativeStackScreenProps<
   AuthStackParamList,

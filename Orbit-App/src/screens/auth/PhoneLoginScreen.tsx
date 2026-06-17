@@ -2,13 +2,8 @@ import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { OrbitButton, OrbitHeader, OrbitInput, OrbitScreen } from "../../components/ui";
+import type { PhoneLoginScreenProps } from "../../navigation/types";
 import { theme } from "../../styles/theme";
-
-type PhoneLoginScreenProps = {
-  navigation: {
-    goBack: () => void;
-  };
-};
 
 export default function PhoneLoginScreen({ navigation }: PhoneLoginScreenProps) {
   const [phone, setPhone] = useState("");
@@ -40,8 +35,8 @@ export default function PhoneLoginScreen({ navigation }: PhoneLoginScreenProps) 
             />
             <Text style={styles.status}>
               {verified
-                ? "Telefone validado no fluxo mockado. Use e-mail e senha para autenticação real nesta etapa."
-                : "Código mockado enviado para este fluxo."}
+                ? "Telefone validado neste fluxo. Use e-mail e senha para autenticação real nesta etapa."
+                : "Código de demonstração enviado para este fluxo."}
             </Text>
             {verified ? (
               <OrbitButton

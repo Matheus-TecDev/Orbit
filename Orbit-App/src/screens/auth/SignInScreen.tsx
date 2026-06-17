@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitButton,
@@ -9,9 +9,9 @@ import {
   OrbitInput,
   OrbitScreen,
 } from "../../components/ui";
-import { theme } from "../../styles/theme";
 import { useAuth } from "../../contexts/AuthContext";
 import type { SignInScreenProps } from "../../navigation/types";
+import { theme } from "../../styles/theme";
 
 export default function SignInScreen({ navigation }: SignInScreenProps) {
   const { signIn, loading, error, clearError } = useAuth();
@@ -76,6 +76,25 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       </OrbitCard>
 
       <View style={styles.actions}>
+        <OrbitButton
+          variant="google"
+          label="Continuar com Google"
+          onPress={() =>
+            setLocalMessage("Login com Google será conectado quando o provedor estiver ativo.")
+          }
+          icon={<Ionicons name="logo-google" size={18} color={theme.colors.text} />}
+        />
+        <OrbitButton
+          variant="secondary"
+          label="Entrar com telefone"
+          onPress={() => navigation.navigate("PhoneLogin")}
+          icon={<Ionicons name="call" size={18} color={theme.colors.text} />}
+        />
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou</Text>
+          <View style={styles.dividerLine} />
+        </View>
         <View style={styles.emailForm}>
           <OrbitInput
             label="E-mail"
@@ -156,6 +175,23 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: theme.spacing.sm,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.hairline,
+  },
+  dividerText: {
+    color: theme.colors.textSubtle,
+    fontSize: theme.typography.tiny,
+    fontWeight: "900",
+    textTransform: "uppercase",
   },
   emailForm: {
     gap: theme.spacing.sm,
