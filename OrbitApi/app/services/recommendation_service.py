@@ -10,6 +10,7 @@ from app.models.user import User
 from app.repositories.match_repository import list_acted_profile_ids
 from app.repositories.preference_repository import get_preference_by_user_id
 from app.repositories.profile_repository import get_profile_by_user_id, list_visible_profiles
+from app.schemas.profile import DATING_INTENTIONS
 from app.schemas.recommendation import RecommendationRead
 
 
@@ -22,6 +23,19 @@ def calculate_age(birth_date: date | None) -> int | None:
 
 def _same_text(left: str | None, right: str | None) -> bool:
     return bool(left and right and left.strip().lower() == right.strip().lower())
+
+
+def _same_intention(left: str | None, right: str | None) -> bool:
+    left_intention = left.strip().lower() if left else None
+    right_intention = right.strip().lower() if right else None
+
+    return bool(
+        left_intention
+        and right_intention
+        and left_intention in DATING_INTENTIONS
+        and right_intention in DATING_INTENTIONS
+        and left_intention == right_intention
+    )
 
 
 def _score_profile(
@@ -48,10 +62,10 @@ def _score_profile(
         score += 10
         reasons.append("mesma cidade")
 
-    if preference and _same_text(candidate.intention, preference.intention):
+    if preference and _same_intention(candidate.intention, preference.intention):
         score += 25
         reasons.append("intencao alinhada")
-    elif _same_text(candidate.intention, current_profile.intention):
+    elif _same_intention(candidate.intention, current_profile.intention):
         score += 15
         reasons.append("intencao em comum")
 

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from app.schemas.profile import normalize_interest_names
+from app.schemas.profile import normalize_interest_names, normalize_intention
 
 
 class PreferenceBase(BaseModel):
@@ -18,6 +18,11 @@ class PreferenceBase(BaseModel):
     @classmethod
     def normalize_interests(cls, value: list[str]) -> list[str]:
         return normalize_interest_names(value) or []
+
+    @field_validator("intention")
+    @classmethod
+    def validate_intention(cls, value: str | None) -> str | None:
+        return normalize_intention(value)
 
     @model_validator(mode="after")
     def validate_age_range(self) -> "PreferenceBase":
@@ -42,6 +47,11 @@ class PreferenceUpdate(BaseModel):
     @classmethod
     def normalize_interests(cls, value: list[str] | None) -> list[str] | None:
         return normalize_interest_names(value)
+
+    @field_validator("intention")
+    @classmethod
+    def validate_intention(cls, value: str | None) -> str | None:
+        return normalize_intention(value)
 
     @model_validator(mode="after")
     def validate_age_range(self) -> "PreferenceUpdate":

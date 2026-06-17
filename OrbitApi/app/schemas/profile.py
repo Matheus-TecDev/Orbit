@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
+DATING_INTENTIONS = {"serious", "casual", "exploring"}
+
 
 def normalize_interest_names(value: list[str] | None) -> list[str] | None:
     if value is None:
@@ -15,6 +17,17 @@ def normalize_interest_names(value: list[str] | None) -> list[str] | None:
             normalized.append(name)
             seen.add(name)
     return normalized
+
+
+def normalize_intention(value: str | None) -> str | None:
+    if value is None:
+        return None
+
+    normalized = value.strip().lower()
+    if normalized in DATING_INTENTIONS:
+        return normalized
+
+    raise ValueError("intention must be one of: serious, casual, exploring")
 
 
 class ProfileBase(BaseModel):
@@ -33,6 +46,11 @@ class ProfileBase(BaseModel):
     @classmethod
     def normalize_interests(cls, value: list[str]) -> list[str]:
         return normalize_interest_names(value) or []
+
+    @field_validator("intention")
+    @classmethod
+    def validate_intention(cls, value: str | None) -> str | None:
+        return normalize_intention(value)
 
 
 class ProfileCreate(ProfileBase):
@@ -55,6 +73,11 @@ class ProfileUpdate(BaseModel):
     @classmethod
     def normalize_interests(cls, value: list[str] | None) -> list[str] | None:
         return normalize_interest_names(value)
+
+    @field_validator("intention")
+    @classmethod
+    def validate_intention(cls, value: str | None) -> str | None:
+        return normalize_intention(value)
 
 
 class ProfileRead(BaseModel):

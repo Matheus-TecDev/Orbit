@@ -107,7 +107,7 @@ curl -X POST http://localhost:8000/profiles \
     "gender": "masculino",
     "city": "Fortaleza",
     "country": "Brasil",
-    "intention": "relacionamento serio",
+    "intention": "serious",
     "interests": ["tecnologia", "musica"]
   }'
 ```
@@ -122,7 +122,7 @@ curl -X POST http://localhost:8000/preferences \
     "min_age": 22,
     "max_age": 35,
     "city": "Fortaleza",
-    "intention": "relacionamento serio",
+    "intention": "serious",
     "interests": ["tecnologia", "cafes"]
   }'
 ```
