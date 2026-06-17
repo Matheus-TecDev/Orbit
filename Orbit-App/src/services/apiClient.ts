@@ -15,6 +15,14 @@ export type ApiRequestOptions = {
   headers?: Record<string, string>;
 };
 
+export type UnauthorizedHandler = () => void | Promise<void>;
+
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): void {
+  unauthorizedHandler = handler;
+}
+
 export class ApiRequestError extends Error {
   status: number;
   details?: unknown;
@@ -41,6 +49,10 @@ export async function apiRequest<TResponse>(
   const data = await parseResponseBody(response);
 
   if (!response.ok) {
+    if (shouldHandleUnauthorized(response.status, token)) {
+      await unauthorizedHandler?.();
+    }
+
     throw new ApiRequestError({
       status: response.status,
       message: getErrorMessage(data, response.status),
@@ -49,6 +61,10 @@ export async function apiRequest<TResponse>(
   }
 
   return data as TResponse;
+}
+
+function shouldHandleUnauthorized(status: number, token?: string | null) {
+  return Boolean(token) && (status === 401 || status === 403);
 }
 
 type BuildHeadersInput = {

@@ -7,7 +7,10 @@ import {
   type ReactNode,
 } from "react";
 
-import { ApiRequestError } from "../services/apiClient";
+import {
+  ApiRequestError,
+  setUnauthorizedHandler,
+} from "../services/apiClient";
 import {
   getCurrentUser,
   login,
@@ -74,6 +77,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [status, setStatus] = useState<AuthStatus>("signedOut");
 
   useEffect(() => {
+    setUnauthorizedHandler(handleExpiredSession);
+
+    return () => {
+      setUnauthorizedHandler(null);
+    };
+  }, []);
+
+  useEffect(() => {
     let isActive = true;
 
     async function restoreSession() {
@@ -106,8 +117,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (isInvalidSession(caughtError)) {
-          await removeTokenSafely();
-          clearSessionState();
+          await handleExpiredSession();
           return;
         }
 
@@ -138,10 +148,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const resources = await loadSessionResources(loginResponse.access_token);
       setStatus(hasCompletedOnboarding(resources) ? "signedIn" : "onboarding");
     } catch (caughtError) {
-      if (isInvalidSession(caughtError)) {
-        await removeTokenSafely();
-        clearSessionState();
-      }
       handleError(caughtError);
     } finally {
       setLoading(false);
@@ -163,10 +169,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const resources = await loadSessionResources(loginResponse.access_token);
       setStatus(hasCompletedOnboarding(resources) ? "signedIn" : "onboarding");
     } catch (caughtError) {
-      if (isInvalidSession(caughtError)) {
-        await removeTokenSafely();
-        clearSessionState();
-      }
       handleError(caughtError);
     } finally {
       setLoading(false);
@@ -187,8 +189,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setStatus(hasCompletedOnboarding(resources) ? "signedIn" : "onboarding");
     } catch (caughtError) {
       if (isInvalidSession(caughtError)) {
-        await removeTokenSafely();
-        clearSessionState();
+        await handleExpiredSession();
         return;
       }
 
@@ -221,12 +222,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     clearSessionState();
   }
 
-  function clearSessionState() {
+  async function handleExpiredSession() {
+    await removeTokenSafely();
+    clearSessionState("Sua sessão expirou. Faça login novamente.");
+  }
+
+  function clearSessionState(nextError: string | null = null) {
     setToken(null);
     setUser(null);
     setProfile(null);
     setPreferences(null);
-    setError(null);
+    setError(nextError);
     setLoading(false);
     setStatus("signedOut");
   }
@@ -256,8 +262,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setStatus("signedIn");
     } catch (caughtError) {
       if (isInvalidSession(caughtError)) {
-        await removeTokenSafely();
-        clearSessionState();
+        await handleExpiredSession();
         return;
       }
 
