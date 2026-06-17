@@ -3,7 +3,12 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { OrbitButton, OrbitHeader, OrbitInput, OrbitScreen } from "../../components/ui";
 import { theme } from "../../styles/theme";
-import type { PhoneLoginScreenProps } from "../../navigation/types";
+
+type PhoneLoginScreenProps = {
+  navigation: {
+    goBack: () => void;
+  };
+};
 
 export default function PhoneLoginScreen({ navigation }: PhoneLoginScreenProps) {
   const [phone, setPhone] = useState("");

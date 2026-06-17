@@ -22,13 +22,13 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
 
   function continueToQuestions() {
     setInterests(selected);
-    navigation.navigate("CompatibilityQuestions");
+    navigation.navigate("CompatibilityPriorities");
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Interesses" subtitle="Etapa 5 de 7" onBack={navigation.goBack} />
-      <OrbitProgressBar value={70} />
+      <OrbitHeader title="Interesses" subtitle="Etapa 5 de 9" onBack={navigation.goBack} />
+      <OrbitProgressBar value={56} />
 
       <View style={styles.stack}>
         <InterestSelector

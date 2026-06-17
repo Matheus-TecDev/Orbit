@@ -37,6 +37,12 @@ import {
   removeToken,
   saveToken,
 } from "../services/authStorage";
+import {
+  saveCompatibilityAnswers,
+  saveCompatibilityDealbreakers,
+  saveCompatibilityPriorities,
+} from "../services/compatibilityService";
+import type { CompatibilityPayload } from "../types/compatibility";
 
 export type AuthStatus = "signedOut" | "onboarding" | "signedIn";
 
@@ -57,6 +63,7 @@ type AuthContextValue = {
   completeOnboarding: (
     profilePayload: ProfilePayload,
     preferencePayload: PreferencePayload,
+    compatibilityPayload?: CompatibilityPayload,
   ) => Promise<void>;
 };
 
@@ -240,6 +247,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function completeOnboarding(
     profilePayload: ProfilePayload,
     preferencePayload: PreferencePayload,
+    compatibilityPayload?: CompatibilityPayload,
   ) {
     if (!token) {
       setError("Entre novamente para concluir seu perfil.");
@@ -255,6 +263,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         saveProfile(profilePayload, token, profile),
         savePreference(preferencePayload, token, preferences),
       ]);
+
+      if (compatibilityPayload) {
+        await saveCompatibilityPayload(token, compatibilityPayload);
+      }
 
       setProfile(nextProfile);
       setPreferences(nextPreferences);
@@ -306,6 +318,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+async function saveCompatibilityPayload(
+  token: string,
+  payload: CompatibilityPayload,
+) {
+  await saveCompatibilityAnswers(token, payload.answers);
+  await Promise.all([
+    saveCompatibilityPriorities(token, payload.priorities),
+    saveCompatibilityDealbreakers(token, payload.dealbreakers),
+  ]);
 }
 
 type SessionResources = {

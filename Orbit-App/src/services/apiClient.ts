@@ -1,6 +1,6 @@
 import { API_URL } from "../constants/env";
 
-export type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type ApiError = {
   status: number;

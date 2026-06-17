@@ -3,9 +3,10 @@ import type { IntentKey } from "../types/profile";
 export const intentLabels: Record<IntentKey, string> = {
   serious: "Relacionamento sério",
   casual: "Algo casual",
-  friends: "Amizades",
   exploring: "Ainda estou descobrindo",
 };
+
+export const intentOptions: IntentKey[] = ["serious", "casual", "exploring"];
 
 export const genderOptions = [
   "Mulher",
@@ -14,16 +15,14 @@ export const genderOptions = [
   "Prefiro não informar",
 ] as const;
 
-export const connectionOptions = [
-  "Relacionamento",
-  "Casual",
-  "Amizade",
-  "Compatibilidade alta",
-] as const;
+export const connectionOptions = intentOptions;
 
-export const dealbreakerOptions = [
-  "Falta de respeito",
-  "Objetivos incompatíveis",
-  "Rotina muito distante",
-  "Pouca comunicação",
-] as const;
+export function getIntentLabel(intent: string | null | undefined) {
+  const normalized = intent?.trim().toLowerCase();
+
+  if (normalized === "serious" || normalized === "casual" || normalized === "exploring") {
+    return intentLabels[normalized];
+  }
+
+  return intentLabels.exploring;
+}

@@ -6,10 +6,11 @@ import {
   type ReactNode,
 } from "react";
 
-import { intentLabels } from "../constants/options";
+import type { CompatibilityPayload } from "../types/compatibility";
 import type { PreferencePayload } from "../services/preferenceService";
 import type { ProfilePayload } from "../services/profileService";
 import type { GenderOption, IntentKey } from "../types/profile";
+import { parseBirthDateToApi } from "../utils/dateMask";
 
 type BasicInfoDraft = {
   publicName: string;
@@ -24,8 +25,7 @@ type PreferenceDraft = {
   maxAge: string;
   distance: string;
   genders: GenderOption[];
-  connection: string;
-  dealbreakers: string[];
+  connection: IntentKey;
 };
 
 type OnboardingState = {
@@ -33,6 +33,9 @@ type OnboardingState = {
   intent: IntentKey;
   preferences: PreferenceDraft;
   interests: string[];
+  compatibilityAnswers: Record<string, number>;
+  compatibilityPriorities: Record<string, number>;
+  compatibilityDealbreakers: string[];
 };
 
 type OnboardingContextValue = OnboardingState & {
@@ -40,8 +43,12 @@ type OnboardingContextValue = OnboardingState & {
   setIntent: (intent: IntentKey) => void;
   setPreferences: (preferences: PreferenceDraft) => void;
   setInterests: (interests: string[]) => void;
+  setCompatibilityAnswers: (answers: Record<string, number>) => void;
+  setCompatibilityPriorities: (priorities: Record<string, number>) => void;
+  setCompatibilityDealbreakers: (dealbreakers: string[]) => void;
   buildProfilePayload: () => ProfilePayload;
   buildPreferencePayload: () => PreferencePayload;
+  buildCompatibilityPayload: () => CompatibilityPayload;
 };
 
 const defaultBasicInfo: BasicInfoDraft = {
@@ -57,8 +64,7 @@ const defaultPreferences: PreferenceDraft = {
   maxAge: "34",
   distance: "25",
   genders: ["Mulher"],
-  connection: "Relacionamento",
-  dealbreakers: ["Falta de respeito"],
+  connection: "serious",
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -73,6 +79,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [preferences, setPreferences] =
     useState<PreferenceDraft>(defaultPreferences);
   const [interests, setInterests] = useState<string[]>(["tecnologia", "cafés"]);
+  const [compatibilityAnswers, setCompatibilityAnswers] = useState<Record<string, number>>({});
+  const [compatibilityPriorities, setCompatibilityPriorities] = useState<Record<string, number>>({});
+  const [compatibilityDealbreakers, setCompatibilityDealbreakers] = useState<string[]>([]);
 
   const value = useMemo<OnboardingContextValue>(
     () => ({
@@ -80,18 +89,24 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       intent,
       preferences,
       interests,
+      compatibilityAnswers,
+      compatibilityPriorities,
+      compatibilityDealbreakers,
       setBasicInfo,
       setIntent,
       setPreferences,
       setInterests,
+      setCompatibilityAnswers,
+      setCompatibilityPriorities,
+      setCompatibilityDealbreakers,
       buildProfilePayload: () => ({
         display_name: basicInfo.publicName.trim(),
         bio: emptyToNull(basicInfo.bio),
-        birth_date: toApiDate(basicInfo.birthDate),
+        birth_date: toRequiredApiDate(basicInfo.birthDate),
         gender: emptyToNull(basicInfo.gender),
         city: emptyToNull(basicInfo.city),
         country: "Brasil",
-        intention: intentLabels[intent],
+        intention: intent,
         is_visible: true,
         interests,
       }),
@@ -103,8 +118,30 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         intention: preferences.connection,
         interests,
       }),
+      buildCompatibilityPayload: () => ({
+        answers: Object.entries(compatibilityAnswers).map(([question_key, answer_value]) => ({
+          question_key,
+          answer_value,
+        })),
+        priorities: Object.entries(compatibilityPriorities).map(([dimension, weight]) => ({
+          dimension,
+          weight,
+        })),
+        dealbreakers: compatibilityDealbreakers.map((rule_key) => ({
+          rule_key,
+          value: null,
+        })),
+      }),
     }),
-    [basicInfo, intent, preferences, interests],
+    [
+      basicInfo,
+      intent,
+      preferences,
+      interests,
+      compatibilityAnswers,
+      compatibilityPriorities,
+      compatibilityDealbreakers,
+    ],
   );
 
   return (
@@ -129,16 +166,13 @@ function emptyToNull(value: string) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function toApiDate(value: string) {
-  const trimmed = value.trim();
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
-
-  if (!match) {
-    return emptyToNull(trimmed);
+function toRequiredApiDate(value: string) {
+  const parsed = parseBirthDateToApi(value);
+  if (!parsed) {
+    throw new Error("Data de nascimento inválida.");
   }
 
-  const [, day, month, year] = match;
-  return `${year}-${month}-${day}`;
+  return parsed;
 }
 
 function toBoundedAge(value: string, fallback: number) {

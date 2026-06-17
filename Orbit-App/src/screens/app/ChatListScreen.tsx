@@ -2,23 +2,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { useAuth } from "../../contexts/AuthContext";
-import { mockChats } from "../../data/mockChats";
 import {
   OrbitCard,
+  OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
   OrbitScreen,
+  SkeletonCard,
 } from "../../components/ui";
+import { useAuth } from "../../contexts/AuthContext";
+import type { ChatListScreenProps } from "../../navigation/types";
 import { getChats } from "../../services/chatService";
 import { theme } from "../../styles/theme";
-import type { ChatListScreenProps } from "../../navigation/types";
 import type { ChatPreview } from "../../types/chat";
 import { mapApiChatToChatPreview } from "../../types/chat";
 
 export default function ChatListScreen({ navigation }: ChatListScreenProps) {
   const { token, user } = useAuth();
-  const [chats, setChats] = useState<ChatPreview[]>(mockChats);
+  const [chats, setChats] = useState<ChatPreview[]>([]);
   const [loading, setLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
 
     async function loadChats() {
       if (!token || !user) {
-        setChats(mockChats);
+        setChats([]);
         setChatError("Entre novamente para atualizar suas conversas.");
         return;
       }
@@ -42,19 +43,14 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
           return;
         }
 
-        if (apiChats.length === 0) {
-          setChats(mockChats);
-          setChatError("Ainda não há conversas reais. Mostrando conversas locais.");
-        } else {
-          setChats(apiChats.map((chat) => mapApiChatToChatPreview(chat, user.id)));
-        }
+        setChats(apiChats.map((chat) => mapApiChatToChatPreview(chat, user.id)));
       } catch {
         if (!isActive) {
           return;
         }
 
-        setChats(mockChats);
-        setChatError("Não foi possível carregar conversas reais. Mostrando conversas locais.");
+        setChats([]);
+        setChatError("Não foi possível carregar conversas. Tente novamente.");
       } finally {
         if (isActive) {
           setLoading(false);
@@ -62,7 +58,7 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
       }
     }
 
-    loadChats();
+    void loadChats();
 
     return () => {
       isActive = false;
@@ -75,38 +71,51 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
 
       <View style={styles.stack}>
         {loading ? (
-          <OrbitCard style={styles.statusCard}>
-            <Text style={styles.statusText}>Carregando conversas reais...</Text>
-          </OrbitCard>
+          <>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </>
         ) : null}
         <OrbitErrorMessage message={chatError} />
-        {chats.map((chat) => (
-          <Pressable
-            key={chat.id}
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Chat", { chatId: chat.id })}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <OrbitCard elevated={chat.unread} style={styles.chatCard}>
-              <View style={styles.avatar}>
-                <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
-                {chat.online ? <View style={styles.online} /> : null}
-              </View>
-              <View style={styles.info}>
-                <View style={styles.nameRow}>
-                  <Text style={styles.name}>{chat.name}</Text>
-                  <Text style={styles.time}>{chat.time}</Text>
-                </View>
-                <Text numberOfLines={1} style={styles.message}>
-                  {chat.lastMessage}
-                </Text>
-              </View>
-              {chat.unread ? (
-                <Ionicons name="ellipse" color={theme.colors.orbitRed} size={11} />
-              ) : null}
-            </OrbitCard>
-          </Pressable>
-        ))}
+        {!loading && chats.length === 0 ? (
+          <OrbitEmptyState
+            icon={chatError ? "cloud-offline-outline" : "chatbubbles-outline"}
+            title="Nenhuma conversa ainda"
+            description="Conversas aparecem depois que um match é criado e o chat fica disponível."
+            actionLabel="Ver matches"
+            onAction={() => navigation.navigate("Matches")}
+          />
+        ) : null}
+        {!loading
+          ? chats.map((chat) => (
+              <Pressable
+                key={chat.id}
+                accessibilityRole="button"
+                onPress={() => navigation.navigate("Chat", { chatId: chat.id })}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <OrbitCard elevated={chat.unread} style={styles.chatCard}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
+                    {chat.online ? <View style={styles.online} /> : null}
+                  </View>
+                  <View style={styles.info}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.name}>{chat.name}</Text>
+                      <Text style={styles.time}>{chat.time}</Text>
+                    </View>
+                    <Text numberOfLines={1} style={styles.message}>
+                      {chat.lastMessage}
+                    </Text>
+                  </View>
+                  {chat.unread ? (
+                    <Ionicons name="ellipse" color={theme.colors.orbitRed} size={11} />
+                  ) : null}
+                </OrbitCard>
+              </Pressable>
+            ))
+          : null}
       </View>
     </OrbitScreen>
   );
@@ -176,14 +185,5 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-  },
-  statusCard: {
-    padding: theme.spacing.md,
-  },
-  statusText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.small,
-    fontWeight: "800",
-    lineHeight: 19,
   },
 });

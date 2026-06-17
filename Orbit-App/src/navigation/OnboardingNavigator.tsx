@@ -2,6 +2,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { OnboardingProvider } from "../contexts/OnboardingContext";
 import BasicInfoScreen from "../screens/onboarding/BasicInfoScreen";
+import CompatibilityDealbreakersScreen from "../screens/onboarding/CompatibilityDealbreakersScreen";
+import CompatibilityPrioritiesScreen from "../screens/onboarding/CompatibilityPrioritiesScreen";
 import CompatibilityQuestionsScreen from "../screens/onboarding/CompatibilityQuestionsScreen";
 import IntentSelectionScreen from "../screens/onboarding/IntentSelectionScreen";
 import InterestsScreen from "../screens/onboarding/InterestsScreen";
@@ -24,8 +26,16 @@ export default function OnboardingNavigator() {
         <Stack.Screen name="Preferences" component={PreferencesScreen} />
         <Stack.Screen name="Interests" component={InterestsScreen} />
         <Stack.Screen
+          name="CompatibilityPriorities"
+          component={CompatibilityPrioritiesScreen}
+        />
+        <Stack.Screen
           name="CompatibilityQuestions"
           component={CompatibilityQuestionsScreen}
+        />
+        <Stack.Screen
+          name="CompatibilityDealbreakers"
+          component={CompatibilityDealbreakersScreen}
         />
         <Stack.Screen name="PhotoUpload" component={PhotoUploadScreen} />
         <Stack.Screen name="LegalTerms" component={LegalTermsScreen} />

@@ -8,18 +8,18 @@ import { OrbitCard, OrbitChip, OrbitHeader, OrbitScreen } from "../../components
 import { theme } from "../../styles/theme";
 import type { ExploreScreenProps } from "../../navigation/types";
 import type { UserRecommendation } from "../../types/recommendation";
+import type { IntentKey } from "../../types/profile";
 
-type ExploreFilter = "todos" | "serious" | "casual" | "friends" | "high";
+type ExploreFilter = "todos" | IntentKey;
 
 const filterLabels: Record<ExploreFilter, string> = {
   todos: "Todos",
   serious: "Relacionamento",
   casual: "Casual",
-  friends: "Amizade",
-  high: "Compatibilidade alta",
+  exploring: "Descobrindo",
 };
 
-const filters: ExploreFilter[] = ["todos", "serious", "casual", "friends", "high"];
+const filters: ExploreFilter[] = ["todos", "serious", "casual", "exploring"];
 
 export default function ExploreScreen(_props: ExploreScreenProps) {
   const [activeFilter, setActiveFilter] = useState<ExploreFilter>("todos");
@@ -78,10 +78,6 @@ export default function ExploreScreen(_props: ExploreScreenProps) {
 function matchesFilter(user: UserRecommendation, filter: ExploreFilter) {
   if (filter === "todos") {
     return true;
-  }
-
-  if (filter === "high") {
-    return user.compatibility >= 80;
   }
 
   return user.intent === filter;

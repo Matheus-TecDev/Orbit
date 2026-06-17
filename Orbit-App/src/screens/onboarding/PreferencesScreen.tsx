@@ -3,8 +3,8 @@ import { StyleSheet, Text, View } from "react-native";
 
 import {
   connectionOptions,
-  dealbreakerOptions,
   genderOptions,
+  intentLabels,
 } from "../../constants/options";
 import {
   OrbitButton,
@@ -17,7 +17,7 @@ import {
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { theme } from "../../styles/theme";
 import type { PreferencesScreenProps } from "../../navigation/types";
-import type { GenderOption } from "../../types/profile";
+import type { GenderOption, IntentKey } from "../../types/profile";
 
 export default function PreferencesScreen({ navigation }: PreferencesScreenProps) {
   const { preferences, setPreferences } = useOnboarding();
@@ -25,24 +25,13 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
   const [maxAge, setMaxAge] = useState(preferences.maxAge);
   const [distance, setDistance] = useState(preferences.distance);
   const [genders, setGenders] = useState<GenderOption[]>(preferences.genders);
-  const [connection, setConnection] = useState(preferences.connection);
-  const [dealbreakers, setDealbreakers] = useState<string[]>(
-    preferences.dealbreakers,
-  );
+  const [connection, setConnection] = useState<IntentKey>(preferences.connection);
 
   function toggleGender(gender: GenderOption) {
     setGenders((current) =>
       current.includes(gender)
         ? current.filter((item) => item !== gender)
         : [...current, gender],
-    );
-  }
-
-  function toggleDealbreaker(dealbreaker: string) {
-    setDealbreakers((current) =>
-      current.includes(dealbreaker)
-        ? current.filter((item) => item !== dealbreaker)
-        : [...current, dealbreaker],
     );
   }
 
@@ -53,15 +42,14 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
       distance,
       genders,
       connection,
-      dealbreakers,
     });
     navigation.navigate("Interests");
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Preferências" subtitle="Etapa 4 de 7" onBack={navigation.goBack} />
-      <OrbitProgressBar value={56} />
+      <OrbitHeader title="Preferências" subtitle="Etapa 4 de 9" onBack={navigation.goBack} />
+      <OrbitProgressBar value={44} />
 
       <View style={styles.form}>
         <View style={styles.row}>
@@ -107,25 +95,12 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
           {connectionOptions.map((option) => (
             <OrbitChip
               key={option}
-              label={option}
+              label={intentLabels[option]}
               selected={connection === option}
               onPress={() => setConnection(option)}
             />
           ))}
         </View>
-
-        <Text style={styles.label}>Dealbreakers básicos</Text>
-        <View style={styles.chips}>
-          {dealbreakerOptions.map((option) => (
-            <OrbitChip
-              key={option}
-              label={option}
-              selected={dealbreakers.includes(option)}
-              onPress={() => toggleDealbreaker(option)}
-            />
-          ))}
-        </View>
-
         <OrbitButton label="Continuar" onPress={continueToInterests} />
       </View>
     </OrbitScreen>

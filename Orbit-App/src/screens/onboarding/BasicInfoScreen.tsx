@@ -5,6 +5,7 @@ import { genderOptions } from "../../constants/options";
 import {
   OrbitButton,
   OrbitChip,
+  OrbitErrorMessage,
   OrbitHeader,
   OrbitInput,
   OrbitProgressBar,
@@ -14,6 +15,7 @@ import { useOnboarding } from "../../contexts/OnboardingContext";
 import { theme } from "../../styles/theme";
 import type { BasicInfoScreenProps } from "../../navigation/types";
 import type { GenderOption } from "../../types/profile";
+import { isAdultBirthDate, maskBirthDate, parseBirthDateToApi } from "../../utils/dateMask";
 
 export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
   const { basicInfo, setBasicInfo } = useOnboarding();
@@ -22,11 +24,28 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
   const [city, setCity] = useState(basicInfo.city);
   const [gender, setGender] = useState<GenderOption>(basicInfo.gender);
   const [bio, setBio] = useState(basicInfo.bio);
+  const [birthDateError, setBirthDateError] = useState<string | null>(null);
 
   const canContinue =
     publicName.trim().length > 0 && birthDate.trim().length > 0 && city.trim().length > 0;
 
+  function updateBirthDate(value: string) {
+    const masked = maskBirthDate(value);
+    setBirthDate(masked);
+    setBirthDateError(null);
+  }
+
   function continueToIntent() {
+    if (!parseBirthDateToApi(birthDate)) {
+      setBirthDateError("Informe uma data real no formato DD/MM/AAAA.");
+      return;
+    }
+
+    if (!isAdultBirthDate(birthDate)) {
+      setBirthDateError("Você precisa ter pelo menos 18 anos.");
+      return;
+    }
+
     setBasicInfo({
       publicName,
       birthDate,
@@ -39,17 +58,19 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Dados básicos" subtitle="Etapa 2 de 7" onBack={navigation.goBack} />
-      <OrbitProgressBar value={28} />
+      <OrbitHeader title="Dados básicos" subtitle="Etapa 2 de 9" onBack={navigation.goBack} />
+      <OrbitProgressBar value={22} />
 
       <View style={styles.form}>
         <OrbitInput label="Nome público" value={publicName} onChangeText={setPublicName} />
         <OrbitInput
           label="Data de nascimento"
           value={birthDate}
-          onChangeText={setBirthDate}
+          onChangeText={updateBirthDate}
           placeholder="DD/MM/AAAA"
+          keyboardType="number-pad"
         />
+        <OrbitErrorMessage message={birthDateError} />
         <OrbitInput label="Cidade" value={city} onChangeText={setCity} />
 
         <View style={styles.chips}>

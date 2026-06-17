@@ -1,4 +1,4 @@
-export type IntentKey = "serious" | "casual" | "friends" | "exploring";
+export type IntentKey = "serious" | "casual" | "exploring";
 
 export type GenderOption =
   | "Mulher"
@@ -21,11 +21,6 @@ export type ProfilePreference = {
   interestedGenders: GenderOption[];
   connectionType: string;
   dealbreakers: string[];
-};
-
-export type CompatibilityQuestion = {
-  id: string;
-  text: string;
 };
 
 export type UserPhotoSlot = {

@@ -8,7 +8,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
-  PhoneLogin: undefined;
   ForgotPassword: undefined;
   LegalTerms: undefined;
   PrivacyPolicy: undefined;
@@ -20,7 +19,9 @@ export type OnboardingStackParamList = {
   IntentSelection: undefined;
   Preferences: undefined;
   Interests: undefined;
+  CompatibilityPriorities: undefined;
   CompatibilityQuestions: undefined;
+  CompatibilityDealbreakers: undefined;
   PhotoUpload: undefined;
   LegalTerms: undefined;
   PrivacyPolicy: undefined;
@@ -37,6 +38,7 @@ export type AppTabParamList = {
 export type AppStackParamList = {
   AppTabs: NavigatorScreenParams<AppTabParamList> | undefined;
   Chat: { chatId: string };
+  CompatibilitySettings: undefined;
   LegalTerms: undefined;
   PrivacyPolicy: undefined;
 };
@@ -48,10 +50,6 @@ export type SignInScreenProps = NativeStackScreenProps<
 export type SignUpScreenProps = NativeStackScreenProps<
   AuthStackParamList,
   "SignUp"
->;
-export type PhoneLoginScreenProps = NativeStackScreenProps<
-  AuthStackParamList,
-  "PhoneLogin"
 >;
 export type ForgotPasswordScreenProps = NativeStackScreenProps<
   AuthStackParamList,
@@ -78,9 +76,17 @@ export type InterestsScreenProps = NativeStackScreenProps<
   OnboardingStackParamList,
   "Interests"
 >;
+export type CompatibilityPrioritiesScreenProps = NativeStackScreenProps<
+  OnboardingStackParamList,
+  "CompatibilityPriorities"
+>;
 export type CompatibilityQuestionsScreenProps = NativeStackScreenProps<
   OnboardingStackParamList,
   "CompatibilityQuestions"
+>;
+export type CompatibilityDealbreakersScreenProps = NativeStackScreenProps<
+  OnboardingStackParamList,
+  "CompatibilityDealbreakers"
 >;
 export type PhotoUploadScreenProps = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -102,6 +108,10 @@ export type MyProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<AppStackParamList>
 >;
 export type ChatScreenProps = NativeStackScreenProps<AppStackParamList, "Chat">;
+export type CompatibilitySettingsScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "CompatibilitySettings"
+>;
 export type AppLegalScreenProps =
   | NativeStackScreenProps<AppStackParamList, "LegalTerms">
   | NativeStackScreenProps<AppStackParamList, "PrivacyPolicy">;

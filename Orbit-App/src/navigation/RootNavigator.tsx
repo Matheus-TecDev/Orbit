@@ -9,6 +9,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { OrbitCard, OrbitScreen } from "../components/ui";
 import ChatScreen from "../screens/app/ChatScreen";
+import CompatibilitySettingsScreen from "../screens/settings/CompatibilitySettingsScreen";
 import LegalTermsScreen from "../screens/settings/LegalTermsScreen";
 import PrivacyPolicyScreen from "../screens/settings/PrivacyPolicyScreen";
 import { theme } from "../styles/theme";
@@ -36,6 +37,7 @@ function AppStackNavigator() {
     <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="AppTabs" component={AppTabsNavigator} />
       <AppStack.Screen name="Chat" component={ChatScreen} />
+      <AppStack.Screen name="CompatibilitySettings" component={CompatibilitySettingsScreen} />
       <AppStack.Screen name="LegalTerms" component={LegalTermsScreen} />
       <AppStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
     </AppStack.Navigator>

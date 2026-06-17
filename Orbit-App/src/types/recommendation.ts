@@ -51,17 +51,13 @@ export function mapApiRecommendationToFeedUser(
 }
 
 function mapApiIntentionToIntentKey(intention: string | null): IntentKey {
-  const normalized = (intention ?? "").toLowerCase();
+  const normalized = (intention ?? "").trim().toLowerCase();
 
-  if (normalized.includes("casual")) {
+  if (normalized === "casual") {
     return "casual";
   }
 
-  if (normalized.includes("amiz")) {
-    return "friends";
-  }
-
-  if (normalized.includes("descobr")) {
+  if (normalized === "exploring") {
     return "exploring";
   }
 

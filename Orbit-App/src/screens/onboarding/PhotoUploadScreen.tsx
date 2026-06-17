@@ -26,11 +26,13 @@ const initialSlots: UserPhotoSlot[] = [
 
 export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps) {
   const { completeOnboarding, loading, error, clearError } = useAuth();
-  const { buildProfilePayload, buildPreferencePayload } = useOnboarding();
+  const { buildCompatibilityPayload, buildPreferencePayload, buildProfilePayload } = useOnboarding();
   const [slots, setSlots] = useState<UserPhotoSlot[]>(initialSlots);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   function toggleSlot(slotId: string) {
     clearError();
+    setLocalError(null);
     setSlots((current) =>
       current.map((slot) =>
         slot.id === slotId ? { ...slot, filled: !slot.filled } : slot,
@@ -39,12 +41,27 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
   }
 
   async function finishProfile() {
-    await completeOnboarding(buildProfilePayload(), buildPreferencePayload());
+    clearError();
+    setLocalError(null);
+
+    try {
+      await completeOnboarding(
+        buildProfilePayload(),
+        buildPreferencePayload(),
+        buildCompatibilityPayload(),
+      );
+    } catch (caughtError) {
+      setLocalError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Não foi possível concluir seu perfil.",
+      );
+    }
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Fotos" subtitle="Etapa 7 de 7" onBack={navigation.goBack} />
+      <OrbitHeader title="Fotos" subtitle="Etapa 9 de 9" onBack={navigation.goBack} />
       <OrbitProgressBar value={100} />
 
       <View style={styles.stack}>
@@ -59,7 +76,7 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
           ))}
         </View>
 
-        <OrbitErrorMessage message={error} />
+        <OrbitErrorMessage message={localError ?? error} />
 
         <OrbitButton
           label={loading ? "Salvando perfil..." : "Finalizar perfil"}

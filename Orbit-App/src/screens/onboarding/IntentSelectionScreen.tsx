@@ -3,12 +3,11 @@ import { StyleSheet, View } from "react-native";
 
 import IntentCard from "../../components/onboarding/IntentCard";
 import { OrbitButton, OrbitHeader, OrbitProgressBar, OrbitScreen } from "../../components/ui";
+import { intentOptions } from "../../constants/options";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { theme } from "../../styles/theme";
 import type { IntentSelectionScreenProps } from "../../navigation/types";
 import type { IntentKey } from "../../types/profile";
-
-const intents: IntentKey[] = ["serious", "casual", "friends", "exploring"];
 
 export default function IntentSelectionScreen({
   navigation,
@@ -23,11 +22,11 @@ export default function IntentSelectionScreen({
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Sua intenção" subtitle="Etapa 3 de 7" onBack={navigation.goBack} />
-      <OrbitProgressBar value={42} />
+      <OrbitHeader title="Sua intenção" subtitle="Etapa 3 de 9" onBack={navigation.goBack} />
+      <OrbitProgressBar value={33} />
 
       <View style={styles.stack}>
-        {intents.map((intent) => (
+        {intentOptions.map((intent) => (
           <IntentCard
             key={intent}
             intent={intent}

@@ -17,15 +17,15 @@ export default function TermsConsentScreen({ navigation }: TermsConsentScreenPro
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Consentimentos" subtitle="Etapa 1 de 7" />
-      <OrbitProgressBar value={14} />
+      <OrbitHeader title="Consentimentos" subtitle="Etapa 1 de 9" />
+      <OrbitProgressBar value={11} />
 
       <View style={styles.stack}>
         <OrbitCard elevated>
-          <Text style={styles.cardTitle}>Termos e privacidade</Text>
+          <Text style={styles.cardTitle}>Compatibilidade e recomendações</Text>
           <Text style={styles.text}>
-            Você confirma que leu os termos, a política de privacidade e consente
-            com o uso de dados para recomendações por IA mockadas nesta versão.
+            O Orbit usa suas respostas, preferências e interações no app para calcular
+            compatibilidade e ordenar recomendações de perfis.
           </Text>
           <View style={styles.links}>
             <Pressable onPress={() => navigation.navigate("LegalTerms")}>
@@ -49,7 +49,7 @@ export default function TermsConsentScreen({ navigation }: TermsConsentScreenPro
             ) : null}
           </View>
           <Text style={styles.checkText}>
-            Aceito os termos, a política de privacidade e as recomendações por IA.
+            Consinto com o uso desses dados para recomendações e compatibilidade.
           </Text>
         </Pressable>
 

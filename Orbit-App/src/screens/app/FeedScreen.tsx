@@ -1,27 +1,25 @@
-import { StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 import UserRecommendationCard from "../../components/feed/UserRecommendationCard";
+import type { FeedAction } from "../../components/feed/SwipeActionButtons";
 import {
-  OrbitButton,
-  OrbitCard,
+  OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
   OrbitScreen,
+  SkeletonCard,
 } from "../../components/ui";
 import { useAuth } from "../../contexts/AuthContext";
-import { mockUsers } from "../../data/mockUsers";
+import type { FeedScreenProps } from "../../navigation/types";
 import { likeProfile, passProfile } from "../../services/matchService";
 import { getFeedRecommendations } from "../../services/recommendationService";
 import { theme } from "../../styles/theme";
-import type { FeedScreenProps } from "../../navigation/types";
 import type { UserRecommendation } from "../../types/recommendation";
-import type { FeedAction } from "../../components/feed/SwipeActionButtons";
 
 export default function FeedScreen(_props: FeedScreenProps) {
   const { token } = useAuth();
-  const [recommendations, setRecommendations] =
-    useState<UserRecommendation[]>(mockUsers);
+  const [recommendations, setRecommendations] = useState<UserRecommendation[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,7 +32,7 @@ export default function FeedScreen(_props: FeedScreenProps) {
 
     async function loadRecommendations() {
       if (!token) {
-        setRecommendations(mockUsers);
+        setRecommendations([]);
         setFeedError("Entre novamente para atualizar suas recomendações.");
         return;
       }
@@ -49,13 +47,7 @@ export default function FeedScreen(_props: FeedScreenProps) {
           return;
         }
 
-        if (nextRecommendations.length === 0) {
-          setRecommendations(mockUsers);
-          setFeedError("Ainda não há recomendações reais. Mostrando sugestões locais.");
-        } else {
-          setRecommendations(nextRecommendations);
-        }
-
+        setRecommendations(nextRecommendations);
         setCurrentIndex(0);
         setExpandedId(null);
       } catch {
@@ -63,12 +55,10 @@ export default function FeedScreen(_props: FeedScreenProps) {
           return;
         }
 
-        setRecommendations(mockUsers);
+        setRecommendations([]);
         setCurrentIndex(0);
         setExpandedId(null);
-        setFeedError(
-          "Não foi possível carregar recomendações reais. Mostrando sugestões locais.",
-        );
+        setFeedError("Não foi possível carregar recomendações. Tente novamente.");
       } finally {
         if (isActive) {
           setLoading(false);
@@ -76,7 +66,7 @@ export default function FeedScreen(_props: FeedScreenProps) {
       }
     }
 
-    loadRecommendations();
+    void loadRecommendations();
 
     return () => {
       isActive = false;
@@ -133,42 +123,38 @@ export default function FeedScreen(_props: FeedScreenProps) {
     }
   }
 
-  if (!currentUser) {
-    return (
-      <OrbitScreen>
-        <OrbitHeader title="Feed" subtitle="Recomendações de hoje" />
-        <OrbitCard elevated style={styles.empty}>
-          <Text style={styles.emptyTitle}>Você viu todos os perfis disponíveis.</Text>
-          <Text style={styles.emptyText}>
-            Reinicie a lista para rever as recomendações carregadas.
-          </Text>
-          <OrbitButton label="Reiniciar feed" onPress={() => setCurrentIndex(0)} />
-        </OrbitCard>
-      </OrbitScreen>
-    );
-  }
-
   return (
     <OrbitScreen>
       <OrbitHeader title="Feed" subtitle="Recomendações explicadas por compatibilidade" />
       <View style={styles.stack}>
-        {loading ? (
-          <OrbitCard style={styles.statusCard}>
-            <Text style={styles.statusText}>Carregando recomendações reais...</Text>
-          </OrbitCard>
-        ) : null}
+        {loading ? <SkeletonCard image lines={4} /> : null}
         <OrbitErrorMessage message={feedError} />
-        <UserRecommendationCard
-          user={currentUser}
-          expanded={expandedId === currentUser.id}
-          onPass={handlePass}
-          onLike={handleLike}
-          onSuperLike={handleSuperLike}
-          onViewProfile={() =>
-            setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
-          }
-          loadingAction={loadingAction}
-        />
+        {!loading && currentUser ? (
+          <UserRecommendationCard
+            user={currentUser}
+            expanded={expandedId === currentUser.id}
+            onPass={handlePass}
+            onLike={handleLike}
+            onSuperLike={handleSuperLike}
+            onViewProfile={() =>
+              setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
+            }
+            loadingAction={loadingAction}
+          />
+        ) : null}
+        {!loading && !currentUser ? (
+          <OrbitEmptyState
+            icon={feedError ? "cloud-offline-outline" : "heart-outline"}
+            title={recommendations.length > 0 ? "Você viu todos os perfis" : "Sem recomendações agora"}
+            description={
+              recommendations.length > 0
+                ? "Reinicie a lista para rever as recomendações carregadas."
+                : "Quando houver perfis compatíveis com suas preferências, eles aparecerão aqui."
+            }
+            actionLabel={recommendations.length > 0 ? "Reiniciar feed" : undefined}
+            onAction={recommendations.length > 0 ? () => setCurrentIndex(0) : undefined}
+          />
+        ) : null}
       </View>
     </OrbitScreen>
   );
@@ -177,27 +163,5 @@ export default function FeedScreen(_props: FeedScreenProps) {
 const styles = StyleSheet.create({
   stack: {
     gap: theme.spacing.lg,
-  },
-  empty: {
-    gap: theme.spacing.md,
-  },
-  emptyTitle: {
-    color: theme.colors.text,
-    fontSize: theme.typography.subheading,
-    fontWeight: "900",
-  },
-  emptyText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    lineHeight: 21,
-  },
-  statusCard: {
-    padding: theme.spacing.md,
-  },
-  statusText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.small,
-    fontWeight: "800",
-    lineHeight: 19,
   },
 });

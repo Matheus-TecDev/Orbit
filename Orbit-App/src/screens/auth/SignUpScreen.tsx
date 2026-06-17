@@ -20,7 +20,6 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const canSubmit =
@@ -28,8 +27,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
     name.trim().length > 0 &&
     email.trim().length > 0 &&
     password.length > 0 &&
-    confirmPassword.length > 0 &&
-    birthDate.trim().length > 0;
+    confirmPassword.length > 0;
 
   function clearMessages() {
     setLocalError(null);
@@ -93,16 +91,6 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           }}
           secureTextEntry
         />
-        <OrbitInput
-          label="Data de nascimento"
-          value={birthDate}
-          onChangeText={(value) => {
-            setBirthDate(value);
-            clearMessages();
-          }}
-          placeholder="DD/MM/AAAA"
-        />
-
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: accepted }}

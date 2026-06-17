@@ -2,37 +2,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { useAuth } from "../../contexts/AuthContext";
-import { mockChats } from "../../data/mockChats";
-import { mockUsers } from "../../data/mockUsers";
 import {
   OrbitButton,
   OrbitCard,
+  OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
   OrbitScreen,
+  SkeletonCard,
 } from "../../components/ui";
+import { useAuth } from "../../contexts/AuthContext";
+import type { MatchesScreenProps } from "../../navigation/types";
 import { getMatchList } from "../../services/matchService";
 import { theme } from "../../styles/theme";
 import type { MatchListItem } from "../../types/match";
-import type { MatchesScreenProps } from "../../navigation/types";
-
-const fallbackMatches: MatchListItem[] = mockUsers.slice(0, 3).map((user, index) => ({
-  id: user.id,
-  userId: user.id,
-  name: user.name,
-  age: user.age,
-  city: user.city,
-  status: "mock",
-  chatId: null,
-  compatibility: user.compatibility,
-  photoColor: user.photoColor,
-  isNew: index === 0,
-}));
 
 export default function MatchesScreen({ navigation }: MatchesScreenProps) {
   const { token } = useAuth();
-  const [matches, setMatches] = useState<MatchListItem[]>(fallbackMatches);
+  const [matches, setMatches] = useState<MatchListItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [matchesError, setMatchesError] = useState<string | null>(null);
   const [chatError, setChatError] = useState<string | null>(null);
@@ -42,7 +29,7 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
 
     async function loadMatches() {
       if (!token) {
-        setMatches(fallbackMatches);
+        setMatches([]);
         setMatchesError("Entre novamente para atualizar seus matches.");
         return;
       }
@@ -57,19 +44,14 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
           return;
         }
 
-        if (nextMatches.length === 0) {
-          setMatches(fallbackMatches);
-          setMatchesError("Ainda não há matches reais. Mostrando conexões locais.");
-        } else {
-          setMatches(nextMatches);
-        }
+        setMatches(nextMatches);
       } catch {
         if (!isActive) {
           return;
         }
 
-        setMatches(fallbackMatches);
-        setMatchesError("Não foi possível carregar matches reais. Mostrando conexões locais.");
+        setMatches([]);
+        setMatchesError("Não foi possível carregar seus matches. Tente novamente.");
       } finally {
         if (isActive) {
           setLoading(false);
@@ -77,7 +59,7 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
       }
     }
 
-    loadMatches();
+    void loadMatches();
 
     return () => {
       isActive = false;
@@ -86,55 +68,57 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Matches" subtitle="Conexões recentes" />
+      <OrbitHeader title="Matches" subtitle="Pessoas que também curtiram você" />
 
       <View style={styles.stack}>
         {loading ? (
-          <OrbitCard style={styles.statusCard}>
-            <Text style={styles.statusText}>Carregando matches reais...</Text>
-          </OrbitCard>
+          <>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </>
         ) : null}
         <OrbitErrorMessage message={matchesError} />
         <OrbitErrorMessage message={chatError} />
-        {matches.map((match, index) => {
-          const chat = mockChats.find((item) => item.userId === match.userId) ?? mockChats[0];
-
-          return (
-            <OrbitCard key={match.id} elevated={index === 0} style={styles.matchCard}>
-              <View style={[styles.avatar, { backgroundColor: match.photoColor }]}>
-                <Text style={styles.initial}>{match.name.charAt(0)}</Text>
-              </View>
-              <View style={styles.info}>
-                <View style={styles.nameRow}>
-                  <Text style={styles.name}>{match.name}</Text>
-                  {match.isNew ? <Text style={styles.badge}>Novo match</Text> : null}
+        {!loading && matches.length === 0 ? (
+          <OrbitEmptyState
+            icon={matchesError ? "cloud-offline-outline" : "heart-outline"}
+            title="Sem matches ainda"
+            description="Curta perfis no Feed. Quando houver interesse mútuo, o match aparecerá aqui."
+            actionLabel="Ir para o Feed"
+            onAction={() => navigation.navigate("Feed")}
+          />
+        ) : null}
+        {!loading
+          ? matches.map((match, index) => (
+              <OrbitCard key={match.id} elevated={index === 0} style={styles.matchCard}>
+                <View style={[styles.avatar, { backgroundColor: match.photoColor }]}>
+                  <Text style={styles.initial}>{match.name.charAt(0)}</Text>
                 </View>
-                <Text style={styles.meta}>{match.compatibility}% de compatibilidade</Text>
-              </View>
-              <OrbitButton
-                compact
-                variant="secondary"
-                label="Conversa"
-                onPress={() => {
-                  if (match.chatId) {
-                    setChatError(null);
-                    navigation.navigate("Chat", { chatId: match.chatId });
-                    return;
-                  }
+                <View style={styles.info}>
+                  <View style={styles.nameRow}>
+                    <Text style={styles.name}>{match.name}</Text>
+                    {match.isNew ? <Text style={styles.badge}>Novo match</Text> : null}
+                  </View>
+                  <Text style={styles.meta}>{match.compatibility}% de compatibilidade</Text>
+                </View>
+                <OrbitButton
+                  compact
+                  variant="secondary"
+                  label="Conversa"
+                  onPress={() => {
+                    if (match.chatId) {
+                      setChatError(null);
+                      navigation.navigate("Chat", { chatId: match.chatId });
+                      return;
+                    }
 
-                  if (match.status === "mock") {
-                    setChatError(null);
-                    navigation.navigate("Chat", { chatId: chat.id });
-                    return;
-                  }
-
-                  setChatError("Este match ainda não tem conversa disponível.");
-                }}
-                icon={<Ionicons name="chatbubble" color={theme.colors.text} size={16} />}
-              />
-            </OrbitCard>
-          );
-        })}
+                    setChatError("Este match ainda não tem conversa disponível.");
+                  }}
+                  icon={<Ionicons name="chatbubble" color={theme.colors.text} size={16} />}
+                />
+              </OrbitCard>
+            ))
+          : null}
       </View>
     </OrbitScreen>
   );
@@ -193,14 +177,5 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     fontWeight: "700",
-  },
-  statusCard: {
-    padding: theme.spacing.md,
-  },
-  statusText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.small,
-    fontWeight: "800",
-    lineHeight: 19,
   },
 });

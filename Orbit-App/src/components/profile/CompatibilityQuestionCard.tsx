@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import OrbitChip from "../ui/OrbitChip";
 import OrbitCard from "../ui/OrbitCard";
 import { theme } from "../../styles/theme";
-import type { CompatibilityQuestion } from "../../types/profile";
+import type { CompatibilityQuestion } from "../../types/compatibility";
 
 type CompatibilityQuestionCardProps = {
   question: CompatibilityQuestion;

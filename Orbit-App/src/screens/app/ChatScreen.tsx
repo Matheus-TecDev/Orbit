@@ -1,39 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { useAuth } from "../../contexts/AuthContext";
-import { mockChats } from "../../data/mockChats";
 import {
   OrbitCard,
+  OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
   OrbitScreen,
+  SkeletonCard,
 } from "../../components/ui";
+import { useAuth } from "../../contexts/AuthContext";
+import type { ChatScreenProps } from "../../navigation/types";
 import { getChatMessages, sendChatMessage } from "../../services/chatService";
 import { theme } from "../../styles/theme";
-import type { ChatScreenProps } from "../../navigation/types";
 import type { ChatMessage } from "../../types/chat";
 import { mapApiMessageToChatMessage } from "../../types/chat";
 
 export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const { token, user } = useAuth();
-  const localChat = useMemo(
-    () => mockChats.find((item) => item.id === route.params.chatId),
-    [route.params.chatId],
-  );
-  const fallbackChat = useMemo(
-    () => ({
-      ...mockChats[0],
-      ...localChat,
-      id: route.params.chatId,
-      name: localChat?.name ?? "Conversa Orbit",
-      aiSuggestion:
-        localChat?.aiSuggestion ?? "Use algo específico do match para começar a conversa.",
-    }),
-    [localChat, route.params.chatId],
-  );
-  const [messages, setMessages] = useState<ChatMessage[]>(fallbackChat.messages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
@@ -44,7 +30,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
 
     async function loadMessages() {
       if (!token || !user) {
-        setMessages(fallbackChat.messages);
+        setMessages([]);
         setChatError("Entre novamente para atualizar esta conversa.");
         return;
       }
@@ -59,21 +45,14 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           return;
         }
 
-        if (apiMessages.length === 0) {
-          setMessages(fallbackChat.messages);
-          setChatError("Ainda não há mensagens reais. Mostrando conversa local.");
-        } else {
-          setMessages(
-            apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)),
-          );
-        }
+        setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
       } catch {
         if (!isActive) {
           return;
         }
 
-        setMessages(fallbackChat.messages);
-        setChatError("Não foi possível carregar mensagens reais. Mostrando conversa local.");
+        setMessages([]);
+        setChatError("Não foi possível carregar mensagens. Tente novamente.");
       } finally {
         if (isActive) {
           setLoading(false);
@@ -81,12 +60,12 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
       }
     }
 
-    loadMessages();
+    void loadMessages();
 
     return () => {
       isActive = false;
     };
-  }, [fallbackChat.messages, route.params.chatId, token, user]);
+  }, [route.params.chatId, token, user]);
 
   async function sendMessage() {
     const text = draft.trim();
@@ -96,17 +75,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     }
 
     if (!token || !user) {
-      setMessages((current) => [
-        ...current,
-        {
-          id: `local-${current.length + 1}`,
-          author: "me",
-          text,
-          time: "Agora",
-        },
-      ]);
-      setDraft("");
-      setChatError("Mensagem salva apenas localmente. Entre novamente para enviar pela API.");
+      setChatError("Entre novamente para enviar mensagens.");
       return;
     }
 
@@ -129,34 +98,46 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
 
   return (
     <OrbitScreen scroll={false}>
-      <OrbitHeader title={fallbackChat.name} subtitle="Conversa" onBack={navigation.goBack} />
+      <OrbitHeader title="Conversa Orbit" subtitle="Mensagens" onBack={navigation.goBack} />
 
       <View style={styles.messages}>
         {loading ? (
-          <OrbitCard style={styles.statusCard}>
-            <Text style={styles.statusText}>Carregando mensagens reais...</Text>
-          </OrbitCard>
+          <>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </>
         ) : null}
         <OrbitErrorMessage message={chatError} />
-        {messages.map((message) => (
-          <View
-            key={message.id}
-            style={[
-              styles.bubble,
-              message.author === "me" ? styles.myBubble : styles.matchBubble,
-            ]}
-          >
-            <Text style={styles.messageText}>{message.text}</Text>
-            <Text style={styles.messageTime}>{message.time}</Text>
-          </View>
-        ))}
+        {!loading && messages.length === 0 ? (
+          <OrbitEmptyState
+            icon={chatError ? "cloud-offline-outline" : "chatbubble-ellipses-outline"}
+            title="Conversa sem mensagens"
+            description="Quando vocês começarem a conversar, as mensagens aparecerão aqui."
+          />
+        ) : null}
+        {!loading
+          ? messages.map((message) => (
+              <View
+                key={message.id}
+                style={[
+                  styles.bubble,
+                  message.author === "me" ? styles.myBubble : styles.matchBubble,
+                ]}
+              >
+                <Text style={styles.messageText}>{message.text}</Text>
+                <Text style={styles.messageTime}>{message.time}</Text>
+              </View>
+            ))
+          : null}
       </View>
 
       <OrbitCard elevated style={styles.suggestion}>
         <View style={styles.suggestionIcon}>
           <Ionicons name="sparkles" color={theme.colors.orbitRed} size={16} />
         </View>
-        <Text style={styles.suggestionText}>{fallbackChat.aiSuggestion}</Text>
+        <Text style={styles.suggestionText}>
+          Use um interesse em comum ou uma pergunta leve para começar a conversa.
+        </Text>
       </OrbitCard>
 
       <View style={styles.composer}>
@@ -194,15 +175,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: theme.spacing.md,
     paddingTop: theme.spacing.xs,
-  },
-  statusCard: {
-    padding: theme.spacing.md,
-  },
-  statusText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.small,
-    fontWeight: "800",
-    lineHeight: 19,
   },
   bubble: {
     maxWidth: "82%",

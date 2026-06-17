@@ -33,11 +33,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
     clearError();
   }
 
-  function showSocialMock() {
-    clearError();
-    setLocalMessage("Login social continua mockado nesta etapa. Use e-mail e senha.");
-  }
-
   async function handleEmailSignIn() {
     if (!canSubmit) {
       setLocalMessage("Informe e-mail e senha para entrar.");
@@ -81,24 +76,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       </OrbitCard>
 
       <View style={styles.actions}>
-        <OrbitButton
-          variant="google"
-          label="Continuar com Google"
-          onPress={showSocialMock}
-          icon={
-            <Image
-              source={require("../../assets/Google.png")}
-              resizeMode="contain"
-              style={styles.googleIcon}
-            />
-          }
-        />
-        <OrbitButton
-          variant="instagram"
-          label="Continuar com Instagram"
-          onPress={showSocialMock}
-          icon={<Ionicons name="logo-instagram" size={18} color={theme.colors.text} />}
-        />
         <View style={styles.emailForm}>
           <OrbitInput
             label="E-mail"
@@ -116,12 +93,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
           />
         </View>
         <OrbitErrorMessage message={localMessage ?? error} />
-        <OrbitButton
-          variant="secondary"
-          label="Continuar com telefone"
-          onPress={() => navigation.navigate("PhoneLogin")}
-          icon={<Ionicons name="call" size={18} color={theme.colors.text} />}
-        />
         <OrbitButton
           label={loading ? "Entrando..." : "Entrar com e-mail"}
           loading={loading}
@@ -189,10 +160,6 @@ const styles = StyleSheet.create({
   emailForm: {
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
-  },
-  googleIcon: {
-    width: 18,
-    height: 18,
   },
   links: {
     alignItems: "center",
