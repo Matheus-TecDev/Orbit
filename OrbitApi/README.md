@@ -7,7 +7,8 @@ Backend inicial do Orbit AI, criado em Python 3.12 com FastAPI, PostgreSQL, SQLA
 - Healthcheck em `GET /health`
 - Cadastro, login JWT e usuario autenticado
 - Perfil do usuario e preferencias
-- Recomendacoes mockadas por regras simples
+- Compatibilidade v1 com perguntas, respostas, prioridades e dealbreakers
+- Recomendacoes por regras de preferencias e compatibilidade
 - Likes, passes e matches reciprocos
 - Chats e mensagens iniciais sem WebSocket
 - Docker Compose com backend e PostgreSQL
@@ -148,6 +149,11 @@ Todas as rotas abaixo exigem `Authorization: Bearer <token>`.
 - `POST /preferences`
 - `GET /preferences/me`
 - `PATCH /preferences/me`
+- `GET /compatibility/questions`
+- `GET /compatibility/me`
+- `PUT /compatibility/answers`
+- `PUT /compatibility/priorities`
+- `PUT /compatibility/dealbreakers`
 - `GET /recommendations`
 - `POST /matches/like/{profile_id}`
 - `POST /matches/pass/{profile_id}`

@@ -12,6 +12,7 @@ from app.models.base import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.chat import Chat
+    from app.models.compatibility import CompatibilityAnswer, CompatibilityDealbreaker, CompatibilityPriority
     from app.models.match import Match
     from app.models.message import Message
     from app.models.preference import Preference
@@ -47,3 +48,15 @@ class User(TimestampMixin, Base):
         back_populates="participants",
     )
     messages: Mapped[list[Message]] = relationship(back_populates="sender")
+    compatibility_answers: Mapped[list[CompatibilityAnswer]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    compatibility_priorities: Mapped[list[CompatibilityPriority]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    compatibility_dealbreakers: Mapped[list[CompatibilityDealbreaker]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

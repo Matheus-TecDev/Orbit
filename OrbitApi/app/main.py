@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.routers import auth, chats, matches, preferences, profiles, recommendations, users
+from app.routers import auth, chats, compatibility, matches, preferences, profiles, recommendations, users
 
 
 settings = get_settings()
@@ -39,6 +39,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(profiles.router)
 app.include_router(preferences.router)
+app.include_router(compatibility.router)
 app.include_router(recommendations.router)
 app.include_router(matches.router)
 app.include_router(chats.router)

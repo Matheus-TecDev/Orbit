@@ -13,6 +13,12 @@ from app.models.message import Message
 from app.models.profile import Profile
 from app.models.user import User
 from app.repositories.chat_repository import get_chat_between_users
+from app.repositories.compatibility_repository import (
+    replace_dealbreakers,
+    replace_priorities,
+    upsert_answers,
+    upsert_official_questions,
+)
 from app.repositories.match_repository import get_match_by_actor_and_target
 from app.repositories.preference_repository import (
     create_preference,
@@ -26,6 +32,12 @@ from app.repositories.profile_repository import (
 )
 from app.repositories.user_repository import create_user, get_user_by_email
 from app.schemas.preference import PreferenceCreate, PreferenceUpdate
+from app.schemas.compatibility import (
+    CompatibilityAnswerUpsert,
+    CompatibilityDealbreakerUpsert,
+    CompatibilityPriorityUpsert,
+    OFFICIAL_QUESTIONS,
+)
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 from app.services.match_service import like_profile, pass_profile
 
@@ -413,12 +425,113 @@ CHAT_MESSAGES: dict[str, list[tuple[str, str]]] = {
 }
 
 
+DEFAULT_COMPATIBILITY_ANSWERS = {question["key"]: 3 for question in OFFICIAL_QUESTIONS}
+
+INTENTION_ANSWER_PROFILES: dict[str, dict[str, int]] = {
+    "serious": {
+        "family": 4,
+        "ambition": 4,
+        "stability": 5,
+        "spirituality": 3,
+        "social_life": 3,
+        "privacy": 4,
+        "future_plans": 5,
+        "money": 4,
+        "children": 4,
+        "communication_frequency": 4,
+        "conflict_resolution": 4,
+        "affection": 4,
+        "personal_space": 3,
+        "jealousy": 5,
+        "relationship_pace": 4,
+        "lifestyle": 3,
+        "routine": 4,
+        "nightlife": 2,
+        "fitness": 4,
+        "travel": 4,
+        "openness": 4,
+        "conscientiousness": 4,
+        "extraversion": 3,
+        "agreeableness": 4,
+        "emotional_stability": 4,
+    },
+    "casual": {
+        "family": 3,
+        "ambition": 4,
+        "stability": 2,
+        "spirituality": 2,
+        "social_life": 5,
+        "privacy": 4,
+        "future_plans": 2,
+        "money": 3,
+        "children": 2,
+        "communication_frequency": 3,
+        "conflict_resolution": 3,
+        "affection": 4,
+        "personal_space": 4,
+        "jealousy": 5,
+        "relationship_pace": 2,
+        "lifestyle": 5,
+        "routine": 2,
+        "nightlife": 5,
+        "fitness": 3,
+        "travel": 5,
+        "openness": 5,
+        "conscientiousness": 3,
+        "extraversion": 5,
+        "agreeableness": 4,
+        "emotional_stability": 3,
+    },
+    "exploring": {
+        "family": 3,
+        "ambition": 4,
+        "stability": 3,
+        "spirituality": 3,
+        "social_life": 4,
+        "privacy": 4,
+        "future_plans": 3,
+        "money": 3,
+        "children": 3,
+        "communication_frequency": 4,
+        "conflict_resolution": 4,
+        "affection": 3,
+        "personal_space": 4,
+        "jealousy": 5,
+        "relationship_pace": 4,
+        "lifestyle": 4,
+        "routine": 3,
+        "nightlife": 3,
+        "fitness": 3,
+        "travel": 4,
+        "openness": 5,
+        "conscientiousness": 3,
+        "extraversion": 4,
+        "agreeableness": 4,
+        "emotional_stability": 4,
+    },
+}
+
+INTENTION_PRIORITIES: dict[str, list[str]] = {
+    "serious": ["family", "stability", "future_plans", "communication_frequency", "routine"],
+    "casual": ["lifestyle", "nightlife", "travel", "affection", "openness"],
+    "exploring": ["personal_space", "travel", "openness", "relationship_pace", "communication_frequency"],
+}
+
+INTENTION_DEALBREAKERS: dict[str, list[str]] = {
+    "serious": ["disrespect", "poor_communication", "casual_only"],
+    "casual": ["disrespect", "incompatible_routine"],
+    "exploring": ["disrespect", "poor_communication"],
+}
+
+
 def seed() -> None:
     db = SessionLocal()
     try:
+        upsert_official_questions(db)
         demo_user = upsert_user(db, DEMO_USER, password=DEMO_PASSWORD)
         demo_profile = upsert_profile(db, demo_user, DEMO_USER["profile"])
         upsert_preference(db, demo_user, DEMO_USER["preference"])
+        upsert_seed_compatibility(db, demo_user, DEMO_USER)
 
         seeded_users: dict[str, User] = {DEMO_EMAIL: demo_user}
         seeded_profiles: dict[str, Profile] = {DEMO_EMAIL: demo_profile}
@@ -427,6 +540,7 @@ def seed() -> None:
             user = upsert_user(db, item, password=DEFAULT_PASSWORD)
             profile = upsert_profile(db, user, item["profile"])
             upsert_preference(db, user, item["preference"])
+            upsert_seed_compatibility(db, user, item)
             seeded_users[item["email"]] = user
             seeded_profiles[item["email"]] = profile
 
@@ -497,6 +611,28 @@ def upsert_preference(db: Session, user: User, data: PreferenceSeed) -> None:
 
     update_payload = PreferenceUpdate(**payload.model_dump())
     update_preference(db, preference=preference, data=update_payload)
+
+
+def upsert_seed_compatibility(db: Session, user: User, item: UserSeed) -> None:
+    intention = item["profile"]["intention"]
+    answers = DEFAULT_COMPATIBILITY_ANSWERS | INTENTION_ANSWER_PROFILES.get(intention, {})
+    answer_payload = [
+        CompatibilityAnswerUpsert(question_key=question_key, answer_value=value)
+        for question_key, value in answers.items()
+    ]
+    upsert_answers(db, user_id=user.id, payload=answer_payload)
+
+    priority_payload = [
+        CompatibilityPriorityUpsert(dimension=dimension, weight=5)
+        for dimension in INTENTION_PRIORITIES.get(intention, [])
+    ]
+    replace_priorities(db, user_id=user.id, payload=priority_payload)
+
+    dealbreaker_payload = [
+        CompatibilityDealbreakerUpsert(rule_key=rule_key, value=None)
+        for rule_key in INTENTION_DEALBREAKERS.get(intention, ["disrespect"])
+    ]
+    replace_dealbreakers(db, user_id=user.id, payload=dealbreaker_payload)
 
 
 def ensure_chat_messages(db: Session, *, demo_user: User, other_user: User) -> None:
