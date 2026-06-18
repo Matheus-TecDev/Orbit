@@ -12,6 +12,7 @@ import {
 import { theme } from "../../styles/theme";
 import { useAuth } from "../../contexts/AuthContext";
 import type { SignUpScreenProps } from "../../navigation/types";
+import { getPasswordValidationError } from "../../utils/passwordValidation";
 
 export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   const { signUp, loading, error, clearError } = useAuth();
@@ -40,8 +41,9 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
       return;
     }
 
-    if (password.length < 8) {
-      setLocalError("A senha deve ter pelo menos 8 caracteres.");
+    const passwordError = getPasswordValidationError(password);
+    if (passwordError) {
+      setLocalError(passwordError);
       return;
     }
 

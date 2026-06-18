@@ -98,7 +98,12 @@ def _score_objective_preferences(
     elif _same_text(candidate.city, current_profile.city):
         score += 3
 
-    if preference and _same_text(candidate.gender, preference.gender):
+    preferred_genders = set(preference.preferred_genders) if preference else set()
+    candidate_gender = candidate.gender.strip().lower() if candidate.gender else None
+    if preference and candidate_gender and candidate_gender in preferred_genders:
+        score += 5
+        reasons.append("perfil dentro das suas preferências")
+    elif preference and _same_text(candidate.gender, preference.gender):
         score += 5
         reasons.append("perfil dentro das suas preferências")
 

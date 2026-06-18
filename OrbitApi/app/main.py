@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.routers import auth, chats, compatibility, matches, preferences, profiles, recommendations, users
+from app.routers import auth, chats, cities, compatibility, matches, preferences, profiles, recommendations, users
 
 
 settings = get_settings()
@@ -37,6 +37,7 @@ def healthcheck(db: Annotated[Session, Depends(get_db)]) -> dict[str, str]:
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(cities.router)
 app.include_router(profiles.router)
 app.include_router(preferences.router)
 app.include_router(compatibility.router)

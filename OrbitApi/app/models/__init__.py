@@ -1,4 +1,5 @@
 from app.models.chat import Chat, chat_participants
+from app.models.city import City
 from app.models.interest import Interest, preference_interests, profile_interests
 from app.models.compatibility import (
     CompatibilityAnswer,
@@ -14,6 +15,7 @@ from app.models.user import User
 
 __all__ = [
     "Chat",
+    "City",
     "CompatibilityAnswer",
     "CompatibilityDealbreaker",
     "CompatibilityPriority",

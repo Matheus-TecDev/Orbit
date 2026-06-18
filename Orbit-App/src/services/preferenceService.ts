@@ -3,8 +3,10 @@ import { apiRequest } from "./apiClient";
 export type PreferencePayload = {
   min_age?: number;
   max_age?: number;
+  max_distance_km?: number;
   city?: string | null;
   gender?: string | null;
+  preferred_genders?: string[];
   intention?: string | null;
   interests?: string[];
 };
@@ -14,8 +16,10 @@ export type PreferenceRead = {
   user_id: string;
   min_age: number;
   max_age: number;
+  max_distance_km: number;
   city: string | null;
   gender: string | null;
+  preferred_genders: string[];
   intention: string | null;
   interests: string[];
   created_at: string;

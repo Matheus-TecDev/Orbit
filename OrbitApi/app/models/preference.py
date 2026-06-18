@@ -4,7 +4,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -29,8 +29,10 @@ class Preference(TimestampMixin, Base):
     )
     min_age: Mapped[int] = mapped_column(Integer, default=18, nullable=False)
     max_age: Mapped[int] = mapped_column(Integer, default=120, nullable=False)
+    max_distance_km: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
     city: Mapped[str | None] = mapped_column(String(120), nullable=True)
     gender: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    preferred_genders: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
     intention: Mapped[str | None] = mapped_column(String(80), nullable=True)
 
     user: Mapped[User] = relationship(back_populates="preference")

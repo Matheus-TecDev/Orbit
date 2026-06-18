@@ -38,6 +38,23 @@ export function parseBirthDateToApi(value: string): string | null {
   return `${yearText}-${monthText}-${dayText}`;
 }
 
+export function formatDateToBirthDate(value: Date): string {
+  const day = String(value.getDate()).padStart(2, "0");
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const year = String(value.getFullYear());
+  return `${day}/${month}/${year}`;
+}
+
+export function parseApiDateToDate(value: string): Date | null {
+  const apiDate = parseBirthDateToApi(value);
+  if (!apiDate) {
+    return null;
+  }
+
+  const parsed = new Date(`${apiDate}T00:00:00`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export function getAgeFromBirthDate(value: string): number | null {
   const apiDate = parseBirthDateToApi(value);
   if (!apiDate) {

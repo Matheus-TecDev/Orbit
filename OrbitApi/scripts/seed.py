@@ -13,6 +13,7 @@ from app.models.message import Message
 from app.models.profile import Profile
 from app.models.user import User
 from app.repositories.chat_repository import get_chat_between_users
+from app.repositories.city_repository import get_or_create_city
 from app.repositories.compatibility_repository import (
     replace_dealbreakers,
     replace_priorities,
@@ -45,6 +46,19 @@ from app.services.match_service import like_profile, pass_profile
 DEMO_EMAIL = "demo@orbit.ai"
 DEMO_PASSWORD = "orbit123"
 DEFAULT_PASSWORD = "orbit123"
+
+CITY_SEEDS = [
+    ("Fortaleza", "CE"),
+    ("Recife", "PE"),
+    ("Natal", "RN"),
+    ("São Paulo", "SP"),
+    ("Rio de Janeiro", "RJ"),
+    ("Belo Horizonte", "MG"),
+    ("Salvador", "BA"),
+    ("Curitiba", "PR"),
+    ("Porto Alegre", "RS"),
+    ("Brasília", "DF"),
+]
 
 
 class ProfileSeed(TypedDict):
@@ -95,8 +109,10 @@ DEMO_USER: UserSeed = {
     "preference": {
         "min_age": 24,
         "max_age": 35,
+        "max_distance_km": 100,
         "city": "Fortaleza",
         "gender": None,
+        "preferred_genders": ["feminino"],
         "intention": "serious",
         "interests": ["tecnologia", "musica", "cafes", "viagens", "cinema"],
     },
@@ -527,6 +543,7 @@ INTENTION_DEALBREAKERS: dict[str, list[str]] = {
 def seed() -> None:
     db = SessionLocal()
     try:
+        seed_cities(db)
         upsert_official_questions(db)
         demo_user = upsert_user(db, DEMO_USER, password=DEMO_PASSWORD)
         demo_profile = upsert_profile(db, demo_user, DEMO_USER["profile"])
@@ -602,7 +619,12 @@ def upsert_profile(db: Session, user: User, data: ProfileSeed) -> Profile:
 
 
 def upsert_preference(db: Session, user: User, data: PreferenceSeed) -> None:
-    payload = PreferenceCreate(**data)
+    normalized_data = {
+        "max_distance_km": 100,
+        "preferred_genders": [data["gender"]] if data.get("gender") else [],
+        **data,
+    }
+    payload = PreferenceCreate(**normalized_data)
     preference = get_preference_by_user_id(db, user.id)
 
     if preference is None:
@@ -611,6 +633,12 @@ def upsert_preference(db: Session, user: User, data: PreferenceSeed) -> None:
 
     update_payload = PreferenceUpdate(**payload.model_dump())
     update_preference(db, preference=preference, data=update_payload)
+
+
+def seed_cities(db: Session) -> None:
+    for name, state in CITY_SEEDS:
+        get_or_create_city(db, name=name, state=state, country="Brasil")
+    db.commit()
 
 
 def upsert_seed_compatibility(db: Session, user: User, item: UserSeed) -> None:

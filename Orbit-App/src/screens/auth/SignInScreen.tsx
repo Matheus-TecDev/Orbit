@@ -76,25 +76,6 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
       </OrbitCard>
 
       <View style={styles.actions}>
-        <OrbitButton
-          variant="google"
-          label="Continuar com Google"
-          onPress={() =>
-            setLocalMessage("Login com Google será conectado quando o provedor estiver ativo.")
-          }
-          icon={<Ionicons name="logo-google" size={18} color={theme.colors.text} />}
-        />
-        <OrbitButton
-          variant="secondary"
-          label="Entrar com telefone"
-          onPress={() => navigation.navigate("PhoneLogin")}
-          icon={<Ionicons name="call" size={18} color={theme.colors.text} />}
-        />
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>ou</Text>
-          <View style={styles.dividerLine} />
-        </View>
         <View style={styles.emailForm}>
           <OrbitInput
             label="E-mail"
@@ -118,6 +99,31 @@ export default function SignInScreen({ navigation }: SignInScreenProps) {
           disabled={!canSubmit}
           onPress={handleEmailSignIn}
           icon={<Ionicons name="mail" size={18} color={theme.colors.text} />}
+        />
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou continue com</Text>
+          <View style={styles.dividerLine} />
+        </View>
+        <OrbitButton
+          variant="google"
+          label="Continuar com Google"
+          onPress={() =>
+            setLocalMessage("Login com Google será conectado quando o provedor estiver ativo.")
+          }
+          icon={
+            <Image
+              source={require("../../assets/Google.png")}
+              resizeMode="contain"
+              style={styles.googleIcon}
+            />
+          }
+        />
+        <OrbitButton
+          variant="secondary"
+          label="Entrar com telefone"
+          onPress={() => navigation.navigate("PhoneLogin")}
+          icon={<Ionicons name="call" size={18} color={theme.colors.text} />}
         />
       </View>
 
@@ -196,6 +202,10 @@ const styles = StyleSheet.create({
   emailForm: {
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
+  },
+  googleIcon: {
+    width: 18,
+    height: 18,
   },
   links: {
     alignItems: "center",

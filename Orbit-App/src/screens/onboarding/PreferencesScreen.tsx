@@ -1,23 +1,23 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import {
-  connectionOptions,
+  ageOptions,
+  distanceOptions,
   genderOptions,
-  intentLabels,
+  getDistanceLabel,
 } from "../../constants/options";
 import {
   OrbitButton,
   OrbitChip,
   OrbitHeader,
-  OrbitInput,
   OrbitProgressBar,
   OrbitScreen,
 } from "../../components/ui";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { theme } from "../../styles/theme";
 import type { PreferencesScreenProps } from "../../navigation/types";
-import type { GenderOption, IntentKey } from "../../types/profile";
+import type { GenderOption } from "../../types/profile";
 
 export default function PreferencesScreen({ navigation }: PreferencesScreenProps) {
   const { preferences, setPreferences } = useOnboarding();
@@ -25,14 +25,22 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
   const [maxAge, setMaxAge] = useState(preferences.maxAge);
   const [distance, setDistance] = useState(preferences.distance);
   const [genders, setGenders] = useState<GenderOption[]>(preferences.genders);
-  const [connection, setConnection] = useState<IntentKey>(preferences.connection);
+  const minAgeNumber = Number.parseInt(minAge, 10);
+  const maxAgeNumber = Number.parseInt(maxAge, 10);
+  const hasValidAges = minAgeNumber <= maxAgeNumber;
+  const canContinue = hasValidAges && genders.length > 0;
 
   function toggleGender(gender: GenderOption) {
-    setGenders((current) =>
-      current.includes(gender)
-        ? current.filter((item) => item !== gender)
-        : [...current, gender],
-    );
+    setGenders((current) => {
+      if (gender === "Prefiro não informar") {
+        return current.includes(gender) ? [] : [gender];
+      }
+
+      const withoutPrivate = current.filter((item) => item !== "Prefiro não informar");
+      return withoutPrivate.includes(gender)
+        ? withoutPrivate.filter((item) => item !== gender)
+        : [...withoutPrivate, gender];
+    });
   }
 
   function continueToInterests() {
@@ -41,7 +49,6 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
       maxAge,
       distance,
       genders,
-      connection,
     });
     navigation.navigate("Interests");
   }
@@ -52,33 +59,30 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
       <OrbitProgressBar value={44} />
 
       <View style={styles.form}>
+        <Text style={styles.title}>Faixa de idade</Text>
+        <Text style={styles.hint}>Escolha uma combinação válida entre 18 e 85 anos.</Text>
         <View style={styles.row}>
-          <View style={styles.inputHalf}>
-            <OrbitInput
-              label="Idade mínima"
-              value={minAge}
-              onChangeText={setMinAge}
-              keyboardType="number-pad"
-            />
-          </View>
-          <View style={styles.inputHalf}>
-            <OrbitInput
-              label="Idade máxima"
-              value={maxAge}
-              onChangeText={setMaxAge}
-              keyboardType="number-pad"
-            />
-          </View>
+          <OptionScroller label="Mínima" options={ageOptions} selected={minAge} onSelect={setMinAge} />
+          <OptionScroller label="Máxima" options={ageOptions} selected={maxAge} onSelect={setMaxAge} />
         </View>
+        {!hasValidAges ? (
+          <Text style={styles.error}>A idade mínima não pode ser maior que a máxima.</Text>
+        ) : null}
 
-        <OrbitInput
-          label="Distância máxima em km"
-          value={distance}
-          onChangeText={setDistance}
-          keyboardType="number-pad"
+        <Text style={styles.title}>Distância máxima</Text>
+        <Text style={styles.hint}>Use um raio prático para ampliar ou focar suas recomendações.</Text>
+        <OptionScroller
+          label="Distância"
+          options={distanceOptions}
+          selected={distance}
+          onSelect={setDistance}
+          getLabel={getDistanceLabel}
         />
 
         <Text style={styles.label}>Gêneros de interesse</Text>
+        <Text style={styles.hint}>
+          Mulher, Homem e Pessoa não binária podem ser combinados. Prefiro não informar é exclusivo.
+        </Text>
         <View style={styles.chips}>
           {genderOptions.map((option) => (
             <OrbitChip
@@ -90,20 +94,41 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
           ))}
         </View>
 
-        <Text style={styles.label}>Tipo de conexão</Text>
-        <View style={styles.chips}>
-          {connectionOptions.map((option) => (
-            <OrbitChip
-              key={option}
-              label={intentLabels[option]}
-              selected={connection === option}
-              onPress={() => setConnection(option)}
-            />
-          ))}
-        </View>
-        <OrbitButton label="Continuar" onPress={continueToInterests} />
+        <OrbitButton label="Continuar" disabled={!canContinue} onPress={continueToInterests} />
       </View>
     </OrbitScreen>
+  );
+}
+
+type OptionScrollerProps = {
+  label: string;
+  options: readonly string[];
+  selected: string;
+  onSelect: (value: string) => void;
+  getLabel?: (value: string) => string;
+};
+
+function OptionScroller({
+  label,
+  options,
+  selected,
+  onSelect,
+  getLabel = (value) => value,
+}: OptionScrollerProps) {
+  return (
+    <View style={styles.selector}>
+      <Text style={styles.label}>{label}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.optionRow}>
+        {options.map((option) => (
+          <OrbitChip
+            key={option}
+            label={getLabel(option)}
+            selected={selected === option}
+            onPress={() => onSelect(option)}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -116,13 +141,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: theme.spacing.md,
   },
-  inputHalf: {
+  selector: {
     flex: 1,
+    gap: theme.spacing.sm,
+  },
+  optionRow: {
+    gap: theme.spacing.sm,
+    paddingRight: theme.spacing.md,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.typography.subheading,
+    fontWeight: "900",
   },
   label: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     fontWeight: "900",
+  },
+  hint: {
+    color: theme.colors.textSubtle,
+    fontSize: theme.typography.small,
+    lineHeight: 19,
+  },
+  error: {
+    color: theme.colors.danger,
+    fontSize: theme.typography.small,
+    fontWeight: "800",
   },
   chips: {
     flexDirection: "row",

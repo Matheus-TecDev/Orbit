@@ -8,15 +8,22 @@ from app.schemas.profile import normalize_interest_names, normalize_intention
 
 class PreferenceBase(BaseModel):
     min_age: int = Field(default=18, ge=18, le=120)
-    max_age: int = Field(default=120, ge=18, le=120)
+    max_age: int = Field(default=85, ge=18, le=85)
+    max_distance_km: int = Field(default=100, ge=1, le=20000)
     city: str | None = Field(default=None, max_length=120)
     gender: str | None = Field(default=None, max_length=40)
+    preferred_genders: list[str] = Field(default_factory=list, max_length=4)
     intention: str | None = Field(default=None, max_length=80)
     interests: list[str] = Field(default_factory=list, max_length=20)
 
     @field_validator("interests")
     @classmethod
     def normalize_interests(cls, value: list[str]) -> list[str]:
+        return normalize_interest_names(value) or []
+
+    @field_validator("preferred_genders")
+    @classmethod
+    def normalize_preferred_genders(cls, value: list[str]) -> list[str]:
         return normalize_interest_names(value) or []
 
     @field_validator("intention")
@@ -37,15 +44,22 @@ class PreferenceCreate(PreferenceBase):
 
 class PreferenceUpdate(BaseModel):
     min_age: int | None = Field(default=None, ge=18, le=120)
-    max_age: int | None = Field(default=None, ge=18, le=120)
+    max_age: int | None = Field(default=None, ge=18, le=85)
+    max_distance_km: int | None = Field(default=None, ge=1, le=20000)
     city: str | None = Field(default=None, max_length=120)
     gender: str | None = Field(default=None, max_length=40)
+    preferred_genders: list[str] | None = Field(default=None, max_length=4)
     intention: str | None = Field(default=None, max_length=80)
     interests: list[str] | None = Field(default=None, max_length=20)
 
     @field_validator("interests")
     @classmethod
     def normalize_interests(cls, value: list[str] | None) -> list[str] | None:
+        return normalize_interest_names(value)
+
+    @field_validator("preferred_genders")
+    @classmethod
+    def normalize_preferred_genders(cls, value: list[str] | None) -> list[str] | None:
         return normalize_interest_names(value)
 
     @field_validator("intention")
@@ -65,8 +79,10 @@ class PreferenceRead(BaseModel):
     user_id: UUID
     min_age: int
     max_age: int
+    max_distance_km: int
     city: str | None
     gender: str | None
+    preferred_genders: list[str]
     intention: str | None
     interests: list[str]
     created_at: datetime

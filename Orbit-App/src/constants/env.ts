@@ -4,6 +4,6 @@ declare const process: {
   };
 };
 
-const FALLBACK_API_URL = "http://10.85.50.86:8000";
+const FALLBACK_API_URL = "http://192.168.100.18:8000";
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? FALLBACK_API_URL;

@@ -62,18 +62,17 @@ export type CompatibilityPayload = {
 };
 
 export const priorityDimensionOptions = [
-  { key: "family", label: "Família" },
-  { key: "ambition", label: "Ambição" },
-  { key: "stability", label: "Estabilidade" },
-  { key: "spirituality", label: "Fé/espiritualidade" },
-  { key: "social_life", label: "Vida social" },
-  { key: "privacy", label: "Privacidade" },
-  { key: "future_plans", label: "Planos de futuro" },
-  { key: "money", label: "Dinheiro" },
-  { key: "children", label: "Filhos" },
   { key: "communication_frequency", label: "Comunicação" },
-  { key: "personal_space", label: "Liberdade individual" },
+  { key: "emotional_stability", label: "Estabilidade emocional" },
+  { key: "future_plans", label: "Planos de futuro" },
   { key: "routine", label: "Rotina" },
+  { key: "ambition", label: "Ambição" },
+  { key: "social_life", label: "Vida social" },
+  { key: "family", label: "Família" },
+  { key: "privacy", label: "Privacidade" },
+  { key: "agreeableness", label: "Valores" },
+  { key: "personal_space", label: "Liberdade individual" },
+  { key: "lifestyle", label: "Estilo de vida" },
 ] as const;
 
 export const dealbreakerOptions = [

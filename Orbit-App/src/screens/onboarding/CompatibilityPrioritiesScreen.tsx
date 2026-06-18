@@ -15,6 +15,7 @@ import { priorityDimensionOptions } from "../../types/compatibility";
 import type { CompatibilityPrioritiesScreenProps } from "../../navigation/types";
 
 const maxPriorities = 5;
+const minPriorities = 3;
 
 export default function CompatibilityPrioritiesScreen({
   navigation,
@@ -59,7 +60,12 @@ export default function CompatibilityPrioritiesScreen({
       <OrbitProgressBar value={67} />
 
       <View style={styles.stack}>
-        <Text style={styles.title}>O que mais pesa para você em uma relação?</Text>
+        <View style={styles.copy}>
+          <Text style={styles.title}>O que mais pesa para você em uma conexão?</Text>
+          <Text style={styles.subtitle}>
+            Escolha de {minPriorities} a {maxPriorities} critérios. Eles entram no cálculo de compatibilidade.
+          </Text>
+        </View>
         <View style={styles.chips}>
           {priorityDimensionOptions.map((option) => (
             <OrbitChip
@@ -71,7 +77,11 @@ export default function CompatibilityPrioritiesScreen({
           ))}
         </View>
         <OrbitErrorMessage message={localError} />
-        <OrbitButton label="Continuar" onPress={continueToQuestions} />
+        <OrbitButton
+          label={`Continuar (${selected.length})`}
+          disabled={selected.length < minPriorities}
+          onPress={continueToQuestions}
+        />
       </View>
     </OrbitScreen>
   );
@@ -87,6 +97,14 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.subheading,
     fontWeight: "900",
     lineHeight: 24,
+  },
+  copy: {
+    gap: theme.spacing.sm,
+  },
+  subtitle: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.small,
+    lineHeight: 19,
   },
   chips: {
     flexDirection: "row",

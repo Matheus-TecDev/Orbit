@@ -25,7 +25,6 @@ type PreferenceDraft = {
   maxAge: string;
   distance: string;
   genders: GenderOption[];
-  connection: IntentKey;
 };
 
 type OnboardingState = {
@@ -64,7 +63,6 @@ const defaultPreferences: PreferenceDraft = {
   maxAge: "34",
   distance: "25",
   genders: ["Mulher"],
-  connection: "serious",
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -112,10 +110,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }),
       buildPreferencePayload: () => ({
         min_age: toBoundedAge(preferences.minAge, 18),
-        max_age: toBoundedAge(preferences.maxAge, 120),
+        max_age: toBoundedAge(preferences.maxAge, 85),
+        max_distance_km: toBoundedDistance(preferences.distance),
         city: emptyToNull(basicInfo.city),
-        gender: preferences.genders[0] ?? null,
-        intention: preferences.connection,
+        gender: preferences.genders[0] ? toBackendGender(preferences.genders[0]) : null,
+        preferred_genders: preferences.genders
+          .filter((gender) => gender !== "Prefiro não informar")
+          .map(toBackendGender),
+        intention: null,
         interests,
       }),
       buildCompatibilityPayload: () => ({
@@ -182,5 +184,25 @@ function toBoundedAge(value: string, fallback: number) {
     return fallback;
   }
 
-  return Math.max(18, Math.min(120, parsed));
+  return Math.max(18, Math.min(85, parsed));
+}
+
+function toBoundedDistance(value: string) {
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    return 100;
+  }
+
+  return Math.max(1, Math.min(20000, parsed));
+}
+
+function toBackendGender(gender: GenderOption) {
+  const map: Record<GenderOption, string> = {
+    Mulher: "mulher",
+    Homem: "homem",
+    "Pessoa não binária": "pessoa nao binaria",
+    "Prefiro não informar": "prefiro nao informar",
+  };
+
+  return map[gender];
 }
