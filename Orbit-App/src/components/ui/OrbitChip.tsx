@@ -29,18 +29,18 @@ export default function OrbitChip({ label, selected = false, onPress }: OrbitChi
 
 const styles = StyleSheet.create({
   chip: {
-    minHeight: 34,
+    minHeight: 36,
     borderRadius: theme.radius.round,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: "rgba(255,255,255,0.045)",
+    backgroundColor: theme.colors.surfaceMuted,
     paddingHorizontal: theme.spacing.md,
     alignItems: "center",
     justifyContent: "center",
   },
   selected: {
-    backgroundColor: theme.colors.orbitRedSoft,
-    borderColor: "rgba(225,6,0,0.62)",
+    backgroundColor: theme.colors.accentPinkSoft,
+    borderColor: "rgba(255,77,136,0.48)",
   },
   pressed: {
     opacity: 0.78,

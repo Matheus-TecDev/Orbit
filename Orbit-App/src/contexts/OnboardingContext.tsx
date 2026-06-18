@@ -59,11 +59,13 @@ const defaultBasicInfo: BasicInfoDraft = {
 };
 
 const defaultPreferences: PreferenceDraft = {
-  minAge: "23",
-  maxAge: "34",
-  distance: "25",
-  genders: ["Mulher"],
+  minAge: "18",
+  maxAge: "85",
+  distance: "100",
+  genders: [],
 };
+
+const defaultInterests = ["tecnologia", "cafés tranquilos"];
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
@@ -76,7 +78,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [intent, setIntent] = useState<IntentKey>("serious");
   const [preferences, setPreferences] =
     useState<PreferenceDraft>(defaultPreferences);
-  const [interests, setInterests] = useState<string[]>(["tecnologia", "cafés"]);
+  const [interests, setInterests] = useState<string[]>(defaultInterests);
   const [compatibilityAnswers, setCompatibilityAnswers] = useState<Record<string, number>>({});
   const [compatibilityPriorities, setCompatibilityPriorities] = useState<Record<string, number>>({});
   const [compatibilityDealbreakers, setCompatibilityDealbreakers] = useState<string[]>([]);
@@ -99,12 +101,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       setCompatibilityDealbreakers,
       buildProfilePayload: () => ({
         display_name: basicInfo.publicName.trim(),
-        bio: emptyToNull(basicInfo.bio),
+        bio: null,
         birth_date: toRequiredApiDate(basicInfo.birthDate),
-        gender: emptyToNull(basicInfo.gender),
+        gender: null,
         city: emptyToNull(basicInfo.city),
         country: "Brasil",
         intention: intent,
+        photo_url: null,
         is_visible: true,
         interests,
       }),
@@ -112,12 +115,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         min_age: toBoundedAge(preferences.minAge, 18),
         max_age: toBoundedAge(preferences.maxAge, 85),
         max_distance_km: toBoundedDistance(preferences.distance),
-        city: emptyToNull(basicInfo.city),
-        gender: preferences.genders[0] ? toBackendGender(preferences.genders[0]) : null,
+        city: null,
+        gender: null,
         preferred_genders: preferences.genders
           .filter((gender) => gender !== "Prefiro não informar")
           .map(toBackendGender),
-        intention: null,
+        intention: intent,
         interests,
       }),
       buildCompatibilityPayload: () => ({

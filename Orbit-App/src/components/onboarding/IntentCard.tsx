@@ -11,6 +11,12 @@ type IntentCardProps = {
   onPress: () => void;
 };
 
+const intentDescriptions: Record<IntentKey, string> = {
+  serious: "Quero construir algo com intenção e continuidade.",
+  casual: "Quero conhecer pessoas sem pressionar o ritmo.",
+  exploring: "Ainda estou entendendo o que combina comigo.",
+};
+
 export default function IntentCard({ intent, selected, onPress }: IntentCardProps) {
   return (
     <Pressable
@@ -24,20 +30,23 @@ export default function IntentCard({ intent, selected, onPress }: IntentCardProp
     >
       <View style={[styles.icon, selected && styles.iconSelected]}>
         <Ionicons
-          name={selected ? "checkmark" : "ellipse"}
-          color={selected ? theme.colors.text : theme.colors.textFaint}
-          size={selected ? 17 : 8}
+          name={selected ? "checkmark" : "heart-outline"}
+          color={selected ? theme.colors.text : theme.colors.textSubtle}
+          size={selected ? 17 : 18}
         />
       </View>
-      <Text style={styles.title}>{intentLabels[intent]}</Text>
+      <View style={styles.copy}>
+        <Text style={styles.title}>{intentLabels[intent]}</Text>
+        <Text style={styles.description}>{intentDescriptions[intent]}</Text>
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 68,
-    borderRadius: theme.radius.lg,
+    minHeight: 82,
+    borderRadius: theme.radius.xl,
     borderWidth: 1,
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.card,
@@ -47,20 +56,20 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   selected: {
-    borderColor: "rgba(225,6,0,0.72)",
-    backgroundColor: theme.colors.orbitRedSoft,
+    borderColor: "rgba(255,77,136,0.48)",
+    backgroundColor: theme.colors.accentPinkSoft,
   },
   pressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.985 }],
+    opacity: 0.84,
+    transform: [{ scale: 0.99 }],
   },
   icon: {
-    width: 34,
-    height: 34,
+    width: 38,
+    height: 38,
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.055)",
+    backgroundColor: theme.colors.surfaceMuted,
     borderWidth: 1,
     borderColor: theme.colors.hairline,
   },
@@ -68,10 +77,18 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.orbitRedDark,
     borderColor: "rgba(255,255,255,0.18)",
   },
-  title: {
+  copy: {
     flex: 1,
+    gap: theme.spacing.xs,
+  },
+  title: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
     fontWeight: "900",
+  },
+  description: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.small,
+    lineHeight: 18,
   },
 });

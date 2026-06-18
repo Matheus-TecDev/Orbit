@@ -125,7 +125,7 @@ export default function FeedScreen(_props: FeedScreenProps) {
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Feed" subtitle="Recomendações explicadas por compatibilidade" />
+      <OrbitHeader title="Feed" subtitle="Compatibilidade em primeiro plano" />
       <View style={styles.stack}>
         {loading ? <SkeletonCard image lines={4} /> : null}
         <OrbitErrorMessage message={feedError} />

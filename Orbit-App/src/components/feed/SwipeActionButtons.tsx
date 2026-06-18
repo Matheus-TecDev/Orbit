@@ -8,7 +8,6 @@ type SwipeActionButtonsProps = {
   onPass: () => void;
   onLike: () => void;
   onSuperLike: () => void;
-  onViewProfile: () => void;
   loadingAction?: FeedAction | null;
 };
 
@@ -16,7 +15,6 @@ export default function SwipeActionButtons({
   onPass,
   onLike,
   onSuperLike,
-  onViewProfile,
   loadingAction = null,
 }: SwipeActionButtonsProps) {
   const isBusy = loadingAction !== null;
@@ -47,20 +45,13 @@ export default function SwipeActionButtons({
         loading={loadingAction === "superLike"}
         disabled={isBusy}
       />
-      <ActionButton
-        label="Perfil"
-        icon="person"
-        tone="glass"
-        onPress={onViewProfile}
-        disabled={isBusy}
-      />
     </View>
   );
 }
 
 export type FeedAction = "pass" | "like" | "superLike";
 
-type ActionTone = "primary" | "muted" | "gold" | "glass";
+type ActionTone = "primary" | "muted" | "gold";
 
 type ActionButtonProps = {
   label: string;
@@ -89,7 +80,6 @@ function ActionButton({
         tone === "primary" && styles.primary,
         tone === "muted" && styles.muted,
         tone === "gold" && styles.gold,
-        tone === "glass" && styles.glass,
         disabled && styles.disabled,
         pressed && styles.pressed,
       ]}
@@ -120,29 +110,25 @@ const styles = StyleSheet.create({
   },
   action: {
     flex: 1,
-    minHeight: 66,
-    borderRadius: theme.radius.xl,
+    minHeight: 62,
+    borderRadius: theme.radius.lg,
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing.xs,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.colors.surface,
   },
   primary: {
     backgroundColor: theme.colors.orbitRedDark,
-    borderColor: "rgba(255,255,255,0.18)",
-    ...theme.shadows.glow,
+    borderColor: "rgba(255,255,255,0.16)",
   },
   muted: {
-    backgroundColor: "rgba(255,255,255,0.035)",
+    backgroundColor: theme.colors.surfaceMuted,
   },
   gold: {
-    backgroundColor: "rgba(245,184,75,0.10)",
-    borderColor: "rgba(245,184,75,0.30)",
-  },
-  glass: {
-    backgroundColor: "rgba(255,255,255,0.065)",
+    backgroundColor: "rgba(242,184,75,0.10)",
+    borderColor: "rgba(242,184,75,0.30)",
   },
   disabled: {
     opacity: 0.58,

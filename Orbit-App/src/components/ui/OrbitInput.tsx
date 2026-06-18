@@ -30,11 +30,11 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   input: {
-    minHeight: 52,
+    minHeight: 54,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: "rgba(255,255,255,0.055)",
+    backgroundColor: theme.colors.surface,
     color: theme.colors.text,
     fontSize: theme.typography.body,
     paddingHorizontal: theme.spacing.lg,

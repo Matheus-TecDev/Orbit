@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, type ViewStyle } from "react-native";
+import { StyleSheet, View, type ViewStyle } from "react-native";
 
 import { theme } from "../../styles/theme";
 
@@ -11,16 +10,7 @@ type OrbitCardProps = {
 };
 
 export default function OrbitCard({ children, style, elevated = false }: OrbitCardProps) {
-  return (
-    <LinearGradient
-      colors={["rgba(255,255,255,0.105)", "rgba(255,255,255,0.052)"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.card, elevated && styles.elevated, style]}
-    >
-      {children}
-    </LinearGradient>
-  );
+  return <View style={[styles.card, elevated && styles.elevated, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -31,9 +21,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.card,
     padding: theme.spacing.lg,
     overflow: "hidden",
-    ...theme.shadows.soft,
   },
   elevated: {
+    backgroundColor: theme.colors.cardStrong,
     borderColor: theme.colors.borderStrong,
     ...theme.shadows.elevated,
   },

@@ -40,7 +40,7 @@ export default function OrbitButton({
         <View style={styles.icon}>
           <ActivityIndicator
             size="small"
-            color={variant === "google" ? "#3C4043" : theme.colors.text}
+            color={variant === "google" ? "#202124" : theme.colors.text}
           />
         </View>
       ) : icon ? (
@@ -68,7 +68,7 @@ export default function OrbitButton({
         onPress={onPress}
         style={({ pressed }) => [
           styles.pressable,
-          compact && styles.compact,
+          compact && styles.compactOuter,
           isDisabled && styles.disabled,
           pressed && styles.pressed,
         ]}
@@ -102,15 +102,6 @@ export default function OrbitButton({
         pressed && styles.pressed,
       ]}
     >
-      {variant === "primary" ? (
-        <LinearGradient
-          pointerEvents="none"
-          colors={["rgba(255,255,255,0.12)", "rgba(255,255,255,0.00)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-      ) : null}
       {content}
     </Pressable>
   );
@@ -118,12 +109,15 @@ export default function OrbitButton({
 
 const styles = StyleSheet.create({
   pressable: {
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.lg,
     overflow: "hidden",
+  },
+  compactOuter: {
+    borderRadius: theme.radius.md,
   },
   base: {
     minHeight: 54,
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.lg,
     paddingHorizontal: theme.spacing.lg,
     flexDirection: "row",
     alignItems: "center",
@@ -132,21 +126,21 @@ const styles = StyleSheet.create({
   },
   compact: {
     minHeight: 44,
+    borderRadius: theme.radius.md,
     paddingHorizontal: theme.spacing.md,
   },
   primary: {
     backgroundColor: theme.colors.orbitRedDark,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    ...theme.shadows.glow,
+    borderColor: "rgba(255,255,255,0.16)",
   },
   secondary: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
   ghost: {
-    backgroundColor: "rgba(255,255,255,0.025)",
+    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
@@ -156,9 +150,9 @@ const styles = StyleSheet.create({
     borderColor: "#DADCE0",
   },
   danger: {
-    backgroundColor: "rgba(255,86,86,0.12)",
+    backgroundColor: "rgba(255,92,112,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(255,86,86,0.34)",
+    borderColor: "rgba(255,92,112,0.34)",
   },
   disabled: {
     opacity: 0.45,
@@ -176,11 +170,11 @@ const styles = StyleSheet.create({
   text: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "800",
+    fontWeight: "900",
     textAlign: "center",
   },
   googleText: {
-    color: "#3C4043",
+    color: "#202124",
   },
   secondaryText: {
     color: theme.colors.text,

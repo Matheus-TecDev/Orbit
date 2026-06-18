@@ -4,10 +4,8 @@ import DateTimePicker, {
 import { useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { genderOptions } from "../../constants/options";
 import {
   OrbitButton,
-  OrbitCard,
   OrbitChip,
   OrbitErrorMessage,
   OrbitHeader,
@@ -16,10 +14,9 @@ import {
   OrbitScreen,
 } from "../../components/ui";
 import { useOnboarding } from "../../contexts/OnboardingContext";
+import type { BasicInfoScreenProps } from "../../navigation/types";
 import { getCities, type CityRead } from "../../services/cityService";
 import { theme } from "../../styles/theme";
-import type { BasicInfoScreenProps } from "../../navigation/types";
-import type { GenderOption } from "../../types/profile";
 import {
   formatDateToBirthDate,
   isAdultBirthDate,
@@ -27,27 +24,19 @@ import {
   parseBirthDateToApi,
 } from "../../utils/dateMask";
 
-const bioSuggestions = [
-  "Gosto de conversas leves, cafés bons e planos que façam sentido para os dois.",
-  "Valorizo presença, bom humor e gente que sabe conversar com calma.",
-  "Curto tecnologia, música e descobrir lugares novos sem pressa.",
-];
-
 export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
   const { basicInfo, setBasicInfo } = useOnboarding();
   const [publicName, setPublicName] = useState(basicInfo.publicName);
   const [birthDate, setBirthDate] = useState(basicInfo.birthDate);
   const [city, setCity] = useState(basicInfo.city);
-  const [cityQuery, setCityQuery] = useState("");
+  const [cityQuery, setCityQuery] = useState(basicInfo.city);
   const [cities, setCities] = useState<CityRead[]>([]);
   const [cityError, setCityError] = useState<string | null>(null);
-  const [gender, setGender] = useState<GenderOption>(basicInfo.gender);
-  const [bio, setBio] = useState(basicInfo.bio);
   const [birthDateError, setBirthDateError] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const canContinue =
-    publicName.trim().length > 0 && birthDate.trim().length > 0 && city.trim().length > 0;
+    publicName.trim().length >= 2 && birthDate.trim().length > 0 && city.trim().length > 0;
   const selectedDate = useMemo(
     () => parseApiDateToDate(birthDate) ?? new Date(1998, 0, 1),
     [birthDate],
@@ -71,7 +60,7 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
       }
     }
 
-    loadCities();
+    void loadCities();
 
     return () => {
       isActive = false;
@@ -97,13 +86,6 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
     setCityError(null);
   }
 
-  function applyBioSuggestion(suggestion: string) {
-    setBio((current) => {
-      const trimmed = current.trim();
-      return trimmed.length > 0 ? `${trimmed} ${suggestion}` : suggestion;
-    });
-  }
-
   function continueToIntent() {
     if (!parseBirthDateToApi(birthDate)) {
       setBirthDateError("Informe uma data real no formato DD/MM/AAAA.");
@@ -119,25 +101,39 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
       publicName,
       birthDate,
       city,
-      gender,
-      bio,
+      gender: "Prefiro não informar",
+      bio: "",
     });
     navigation.navigate("IntentSelection");
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Dados básicos" subtitle="Etapa 2 de 9" onBack={navigation.goBack} />
-      <OrbitProgressBar value={22} />
+      <OrbitHeader title="Seu perfil" subtitle="Etapa 2 de 5" onBack={navigation.goBack} />
+      <OrbitProgressBar value={40} />
 
-        <View style={styles.form}>
-        <OrbitInput label="Nome público" value={publicName} onChangeText={setPublicName} />
+      <View style={styles.stack}>
+        <View style={styles.copy}>
+          <Text style={styles.title}>Só o essencial para começar.</Text>
+          <Text style={styles.subtitle}>
+            Depois você pode completar preferências e compatibilidade dentro do app.
+          </Text>
+        </View>
+
+        <OrbitInput
+          label="Nome"
+          value={publicName}
+          onChangeText={setPublicName}
+          placeholder="Como você quer aparecer"
+          autoCapitalize="words"
+        />
+
         <View style={styles.field}>
           <Text style={styles.label}>Data de nascimento</Text>
           <Pressable
             accessibilityRole="button"
             onPress={() => setShowDatePicker(true)}
-            style={styles.selectBox}
+            style={({ pressed }) => [styles.selectBox, pressed && styles.pressed]}
           >
             <Text style={[styles.selectText, !birthDate && styles.placeholder]}>
               {birthDate || "Escolher no calendário"}
@@ -156,7 +152,7 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
         <OrbitErrorMessage message={birthDateError} />
 
         <OrbitInput
-          label="Buscar cidade"
+          label="Cidade"
           value={cityQuery}
           onChangeText={(value) => {
             setCityQuery(value);
@@ -164,7 +160,7 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
               setCity("");
             }
           }}
-          placeholder="Digite para filtrar e toque em uma opção"
+          placeholder="Digite e selecione uma cidade"
         />
         <OrbitErrorMessage message={cityError} />
         <View style={styles.cityList}>
@@ -178,40 +174,6 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
           ))}
         </View>
 
-        <View style={styles.chips}>
-          {genderOptions.map((option) => (
-            <OrbitChip
-              key={option}
-              label={option}
-              selected={gender === option}
-              onPress={() => setGender(option)}
-            />
-          ))}
-        </View>
-
-        <OrbitInput
-          label="Bio curta"
-          value={bio}
-          onChangeText={setBio}
-          multiline
-          style={styles.bio}
-        />
-        <OrbitCard style={styles.suggestions}>
-          <Text style={styles.label}>Sugestões de bio</Text>
-          <View style={styles.suggestionList}>
-            {bioSuggestions.map((suggestion) => (
-              <Pressable
-                key={suggestion}
-                accessibilityRole="button"
-                onPress={() => applyBioSuggestion(suggestion)}
-                style={({ pressed }) => [styles.suggestion, pressed && styles.pressed]}
-              >
-                <Text style={styles.suggestionText}>{suggestion}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </OrbitCard>
-
         <OrbitButton
           label="Continuar"
           disabled={!canContinue}
@@ -223,9 +185,23 @@ export default function BasicInfoScreen({ navigation }: BasicInfoScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  form: {
-    gap: theme.spacing.md,
-    marginTop: theme.spacing.xxl,
+  stack: {
+    gap: theme.spacing.lg,
+    marginTop: theme.spacing.xl,
+  },
+  copy: {
+    gap: theme.spacing.sm,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.typography.heading,
+    fontWeight: "900",
+    lineHeight: 28,
+  },
+  subtitle: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
   },
   field: {
     gap: theme.spacing.sm,
@@ -236,13 +212,16 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   selectBox: {
-    minHeight: 52,
+    minHeight: 54,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: "rgba(255,255,255,0.055)",
+    backgroundColor: theme.colors.surface,
     justifyContent: "center",
     paddingHorizontal: theme.spacing.lg,
+  },
+  pressed: {
+    opacity: 0.86,
   },
   selectText: {
     color: theme.colors.text,
@@ -256,37 +235,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: theme.spacing.sm,
-  },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
-  },
-  bio: {
-    minHeight: 88,
-    textAlignVertical: "top",
-    paddingTop: theme.spacing.md,
-  },
-  suggestions: {
-    gap: theme.spacing.md,
-  },
-  suggestionList: {
-    gap: theme.spacing.sm,
-  },
-  suggestion: {
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.hairline,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    padding: theme.spacing.md,
-  },
-  pressed: {
-    opacity: 0.82,
-  },
-  suggestionText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.small,
-    lineHeight: 19,
-    fontWeight: "700",
   },
 });

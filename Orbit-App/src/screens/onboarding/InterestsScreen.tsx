@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -10,17 +11,17 @@ import {
   OrbitProgressBar,
   OrbitScreen,
 } from "../../components/ui";
+import { interestCategories } from "../../constants/interests";
 import { useOnboarding } from "../../contexts/OnboardingContext";
-import { interestCategories } from "../../data/mockInterests";
-import { theme } from "../../styles/theme";
 import type { InterestsScreenProps } from "../../navigation/types";
+import { theme } from "../../styles/theme";
 
-const minSelections = 4;
-const maxSelections = 12;
+const minSelections = 3;
+const maxSelections = 6;
 
 export default function InterestsScreen({ navigation }: InterestsScreenProps) {
   const { interests, setInterests } = useOnboarding();
-  const [selected, setSelected] = useState<string[]>(interests);
+  const [selected, setSelected] = useState<string[]>(interests.slice(0, maxSelections));
   const [localError, setLocalError] = useState<string | null>(null);
 
   function toggleInterest(interest: string) {
@@ -31,7 +32,7 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
       }
 
       if (current.length >= maxSelections) {
-        setLocalError(`Escolha no máximo ${maxSelections} interesses.`);
+        setLocalError(`Escolha no máximo ${maxSelections} interesses principais.`);
         return current;
       }
 
@@ -39,28 +40,36 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
     });
   }
 
-  function continueToQuestions() {
+  function continueToPhoto() {
     if (selected.length < minSelections) {
-      setLocalError(`Escolha pelo menos ${minSelections} interesses para melhorar as recomendações.`);
+      setLocalError(`Escolha pelo menos ${minSelections} interesses para começar.`);
       return;
     }
 
     setInterests(selected);
-    navigation.navigate("CompatibilityPriorities");
+    navigation.navigate("PhotoUpload");
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Interesses" subtitle="Etapa 5 de 9" onBack={navigation.goBack} />
-      <OrbitProgressBar value={56} />
+      <OrbitHeader title="Interesses" subtitle="Etapa 4 de 5" onBack={navigation.goBack} />
+      <OrbitProgressBar value={80} />
 
       <View style={styles.stack}>
         <View style={styles.copy}>
-          <Text style={styles.title}>Escolha interesses que aparecem na sua vida real.</Text>
+          <Text style={styles.title}>Escolha seus sinais principais.</Text>
           <Text style={styles.subtitle}>
-            Isso ajuda o Orbit a explicar compatibilidade com mais precisão. Selecione de {minSelections} a {maxSelections}.
+            Selecione de {minSelections} a {maxSelections}. Depois você pode detalhar melhor o perfil.
           </Text>
         </View>
+
+        <View style={styles.counter}>
+          <Ionicons name="checkmark-circle" color={theme.colors.accentPink} size={18} />
+          <Text style={styles.counterText}>
+            {selected.length}/{maxSelections} selecionados
+          </Text>
+        </View>
+
         {interestCategories.map((category) => (
           <OrbitCard key={category.title} style={styles.category}>
             <Text style={styles.categoryTitle}>{category.title}</Text>
@@ -68,20 +77,21 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
             <View style={styles.chips}>
               {category.options.map((interest) => (
                 <OrbitChip
-                  key={interest}
-                  label={interest}
-                  selected={selected.includes(interest)}
-                  onPress={() => toggleInterest(interest)}
+                  key={interest.value}
+                  label={interest.label}
+                  selected={selected.includes(interest.value)}
+                  onPress={() => toggleInterest(interest.value)}
                 />
               ))}
             </View>
           </OrbitCard>
         ))}
+
         <OrbitErrorMessage message={localError} />
         <OrbitButton
           label={`Continuar (${selected.length})`}
           disabled={selected.length < minSelections}
-          onPress={continueToQuestions}
+          onPress={continueToPhoto}
         />
       </View>
     </OrbitScreen>
@@ -90,22 +100,39 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
 
 const styles = StyleSheet.create({
   stack: {
-    gap: theme.spacing.xl,
-    marginTop: theme.spacing.xxl,
+    gap: theme.spacing.lg,
+    marginTop: theme.spacing.xl,
   },
   copy: {
     gap: theme.spacing.sm,
   },
   title: {
     color: theme.colors.text,
-    fontSize: theme.typography.subheading,
+    fontSize: theme.typography.heading,
     fontWeight: "900",
-    lineHeight: 24,
+    lineHeight: 28,
   },
   subtitle: {
     color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
+  },
+  counter: {
+    alignSelf: "flex-start",
+    minHeight: 36,
+    borderRadius: theme.radius.round,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceMuted,
+    paddingHorizontal: theme.spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+  },
+  counterText: {
+    color: theme.colors.text,
     fontSize: theme.typography.small,
-    lineHeight: 19,
+    fontWeight: "900",
   },
   category: {
     gap: theme.spacing.md,

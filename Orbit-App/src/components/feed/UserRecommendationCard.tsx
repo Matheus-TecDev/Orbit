@@ -35,7 +35,7 @@ export default function UserRecommendationCard({
       <View style={[styles.photo, { backgroundColor: user.photoColor }]}>
         <LinearGradient
           pointerEvents="none"
-          colors={["rgba(255,255,255,0.14)", "rgba(0,0,0,0.10)", "rgba(0,0,0,0.58)"]}
+          colors={["rgba(255,255,255,0.10)", "rgba(0,0,0,0.10)", "rgba(0,0,0,0.72)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.7, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -60,42 +60,17 @@ export default function UserRecommendationCard({
         <CompatibilityBadge value={user.compatibility} />
       </View>
 
-      {user.commonInterests.length > 0 ? (
-        <View style={styles.chips}>
-          {user.commonInterests.map((interest) => (
-            <OrbitChip key={interest} label={interest} selected />
-          ))}
-        </View>
-      ) : null}
+      <Text numberOfLines={expanded ? undefined : 2} style={styles.bio}>
+        {user.bio}
+      </Text>
 
-      {expanded ? (
-        <View style={styles.details}>
-          <View style={styles.bioBox}>
-            <Text style={styles.bio}>{user.bio}</Text>
-          </View>
-          <View style={styles.explainBox}>
-            <View style={styles.explainHeader}>
-              <View>
-                <Text style={styles.explainEyebrow}>Por que essa pessoa?</Text>
-                <Text style={styles.explainScore}>{user.compatibility}% de compatibilidade</Text>
-              </View>
-              <Ionicons name="sparkles" color={theme.colors.orbitRed} size={20} />
-            </View>
-            <RecommendationReasonList reasons={user.reasons} />
-            {user.commonInterests.length > 0 ? (
-              <View style={styles.commonBlock}>
-                <Text style={styles.commonTitle}>Interesses em comum</Text>
-                <View style={styles.chips}>
-                  {user.commonInterests.map((interest) => (
-                    <OrbitChip key={`detail-${interest}`} label={interest} selected />
-                  ))}
-                </View>
-              </View>
-            ) : null}
-            <Text style={styles.notice}>
-              O Orbit combina intenção, preferências, respostas de compatibilidade e sinais de
-              atividade. Temas sensíveis entram no score sem aparecer como motivos explícitos.
-            </Text>
+      {user.commonInterests.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Interesses em comum</Text>
+          <View style={styles.chips}>
+            {user.commonInterests.slice(0, expanded ? 6 : 4).map((interest) => (
+              <OrbitChip key={interest} label={interest} selected />
+            ))}
           </View>
         </View>
       ) : null}
@@ -105,21 +80,31 @@ export default function UserRecommendationCard({
         onPress={onViewProfile}
         style={({ pressed }) => [styles.explainButton, pressed && styles.pressed]}
       >
+        <View style={styles.explainButtonCopy}>
+          <Text style={styles.explainButtonText}>Por que combina?</Text>
+          <Text style={styles.explainButtonMeta}>{user.compatibility}% de compatibilidade</Text>
+        </View>
         <Ionicons
-          name={expanded ? "chevron-up" : "help-circle"}
+          name={expanded ? "chevron-up" : "chevron-down"}
           color={theme.colors.text}
-          size={17}
+          size={18}
         />
-        <Text style={styles.explainButtonText}>
-          {expanded ? "Ocultar explicação" : "Por que essa pessoa?"}
-        </Text>
       </Pressable>
+
+      {expanded ? (
+        <View style={styles.explainBox}>
+          <RecommendationReasonList reasons={user.reasons} />
+          <Text style={styles.notice}>
+            O Orbit combina intenção, preferências, respostas de compatibilidade e sinais de
+            atividade. Temas sensíveis entram no score sem aparecer como motivos explícitos.
+          </Text>
+        </View>
+      ) : null}
 
       <SwipeActionButtons
         onPass={onPass}
         onLike={onLike}
         onSuperLike={onSuperLike}
-        onViewProfile={onViewProfile}
         loadingAction={loadingAction}
       />
     </OrbitCard>
@@ -131,17 +116,17 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
   },
   photo: {
-    height: 326,
+    height: 342,
     borderRadius: theme.radius.xl,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.16)",
+    borderColor: "rgba(255,255,255,0.14)",
     overflow: "hidden",
   },
   initial: {
     color: theme.colors.text,
-    fontSize: 94,
+    fontSize: 96,
     fontWeight: "900",
     opacity: 0.94,
   },
@@ -160,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: theme.spacing.xs,
     borderRadius: theme.radius.round,
-    backgroundColor: "rgba(0,0,0,0.36)",
+    backgroundColor: "rgba(0,0,0,0.42)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.14)",
     paddingHorizontal: theme.spacing.md,
@@ -178,7 +163,9 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     borderRadius: theme.radius.round,
     overflow: "hidden",
-    backgroundColor: "rgba(225,6,0,0.58)",
+    backgroundColor: "rgba(0,0,0,0.42)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
@@ -200,82 +187,65 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.small,
     marginTop: 2,
   },
+  bio: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
+  },
+  section: {
+    gap: theme.spacing.sm,
+  },
+  sectionTitle: {
+    color: theme.colors.text,
+    fontSize: theme.typography.small,
+    fontWeight: "900",
+  },
   chips: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: theme.spacing.sm,
   },
-  details: {
-    gap: theme.spacing.md,
-  },
-  bioBox: {
+  explainButton: {
+    minHeight: 58,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: theme.colors.hairline,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    padding: theme.spacing.md,
+    borderColor: "rgba(255,77,136,0.28)",
+    backgroundColor: theme.colors.accentPinkSoft,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
   },
-  bio: {
-    color: theme.colors.textMuted,
+  explainButtonCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  explainButtonText: {
+    color: theme.colors.text,
     fontSize: theme.typography.body,
-    lineHeight: 21,
+    fontWeight: "900",
+  },
+  explainButtonMeta: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.tiny,
+    fontWeight: "800",
   },
   explainBox: {
     borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(225,6,0,0.28)",
-    backgroundColor: theme.colors.orbitRedSoft,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceMuted,
     padding: theme.spacing.md,
     gap: theme.spacing.md,
-  },
-  explainHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: theme.spacing.md,
-  },
-  explainEyebrow: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.tiny,
-    fontWeight: "900",
-    textTransform: "uppercase",
-  },
-  explainScore: {
-    color: theme.colors.text,
-    fontSize: theme.typography.subheading,
-    fontWeight: "900",
-    marginTop: 2,
-  },
-  commonBlock: {
-    gap: theme.spacing.sm,
-  },
-  commonTitle: {
-    color: theme.colors.text,
-    fontSize: theme.typography.small,
-    fontWeight: "900",
   },
   notice: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 19,
   },
-  explainButton: {
-    minHeight: 46,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: "rgba(255,255,255,0.055)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing.sm,
-  },
-  explainButtonText: {
-    color: theme.colors.text,
-    fontSize: theme.typography.small,
-    fontWeight: "900",
-  },
   pressed: {
     opacity: 0.84,
-    transform: [{ scale: 0.985 }],
+    transform: [{ scale: 0.99 }],
   },
 });

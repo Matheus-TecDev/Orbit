@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import IntentCard from "../../components/onboarding/IntentCard";
 import { OrbitButton, OrbitHeader, OrbitProgressBar, OrbitScreen } from "../../components/ui";
 import { intentOptions } from "../../constants/options";
 import { useOnboarding } from "../../contexts/OnboardingContext";
-import { theme } from "../../styles/theme";
 import type { IntentSelectionScreenProps } from "../../navigation/types";
+import { theme } from "../../styles/theme";
 import type { IntentKey } from "../../types/profile";
 
 export default function IntentSelectionScreen({
@@ -15,17 +15,24 @@ export default function IntentSelectionScreen({
   const { intent, setIntent } = useOnboarding();
   const [selectedIntent, setSelectedIntent] = useState<IntentKey>(intent);
 
-  function continueToPreferences() {
+  function continueToInterests() {
     setIntent(selectedIntent);
-    navigation.navigate("Preferences");
+    navigation.navigate("Interests");
   }
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Sua intenção" subtitle="Etapa 3 de 9" onBack={navigation.goBack} />
-      <OrbitProgressBar value={33} />
+      <OrbitHeader title="O que você busca?" subtitle="Etapa 3 de 5" onBack={navigation.goBack} />
+      <OrbitProgressBar value={60} />
 
       <View style={styles.stack}>
+        <View style={styles.copy}>
+          <Text style={styles.title}>A intenção guia suas recomendações.</Text>
+          <Text style={styles.subtitle}>
+            Você pode mudar isso depois. O Orbit usa essa escolha para alinhar expectativas.
+          </Text>
+        </View>
+
         {intentOptions.map((intent) => (
           <IntentCard
             key={intent}
@@ -35,7 +42,7 @@ export default function IntentSelectionScreen({
           />
         ))}
 
-        <OrbitButton label="Continuar" onPress={continueToPreferences} />
+        <OrbitButton label="Continuar" onPress={continueToInterests} />
       </View>
     </OrbitScreen>
   );
@@ -45,5 +52,20 @@ const styles = StyleSheet.create({
   stack: {
     gap: theme.spacing.md,
     marginTop: theme.spacing.xl,
+  },
+  copy: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.typography.heading,
+    fontWeight: "900",
+    lineHeight: 28,
+  },
+  subtitle: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
   },
 });

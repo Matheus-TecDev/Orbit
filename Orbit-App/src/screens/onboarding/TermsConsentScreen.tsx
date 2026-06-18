@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitButton,
@@ -9,30 +9,33 @@ import {
   OrbitProgressBar,
   OrbitScreen,
 } from "../../components/ui";
-import { theme } from "../../styles/theme";
 import type { TermsConsentScreenProps } from "../../navigation/types";
+import { theme } from "../../styles/theme";
 
 export default function TermsConsentScreen({ navigation }: TermsConsentScreenProps) {
   const [accepted, setAccepted] = useState(false);
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Consentimentos" subtitle="Etapa 1 de 9" />
-      <OrbitProgressBar value={11} />
+      <OrbitHeader title="Antes de começar" subtitle="Etapa 1 de 5" />
+      <OrbitProgressBar value={20} />
 
       <View style={styles.stack}>
-        <OrbitCard elevated>
-          <Text style={styles.cardTitle}>Compatibilidade e recomendações</Text>
+        <OrbitCard elevated style={styles.card}>
+          <View style={styles.iconWrap}>
+            <Ionicons name="sparkles" color={theme.colors.accentPink} size={22} />
+          </View>
+          <Text style={styles.cardTitle}>Compatibilidade com transparência</Text>
           <Text style={styles.text}>
-            O Orbit usa suas respostas, preferências e interações no app para calcular
-            compatibilidade e ordenar recomendações de perfis.
+            O Orbit usa seu perfil, preferências, interesses e interações para ordenar
+            recomendações de dating e explicar por que alguém combina com você.
           </Text>
           <View style={styles.links}>
             <Pressable onPress={() => navigation.navigate("LegalTerms")}>
-              <Text style={styles.link}>Termos de uso</Text>
+              <Text style={styles.link}>Termos</Text>
             </Pressable>
             <Pressable onPress={() => navigation.navigate("PrivacyPolicy")}>
-              <Text style={styles.link}>Política de privacidade</Text>
+              <Text style={styles.link}>Privacidade</Text>
             </Pressable>
           </View>
         </OrbitCard>
@@ -41,7 +44,7 @@ export default function TermsConsentScreen({ navigation }: TermsConsentScreenPro
           accessibilityRole="checkbox"
           accessibilityState={{ checked: accepted }}
           onPress={() => setAccepted((current) => !current)}
-          style={styles.checkRow}
+          style={({ pressed }) => [styles.checkRow, pressed && styles.pressed]}
         >
           <View style={[styles.checkbox, accepted && styles.checkboxOn]}>
             {accepted ? (
@@ -49,7 +52,7 @@ export default function TermsConsentScreen({ navigation }: TermsConsentScreenPro
             ) : null}
           </View>
           <Text style={styles.checkText}>
-            Consinto com o uso desses dados para recomendações e compatibilidade.
+            Aceito o uso desses dados para compatibilidade e recomendações.
           </Text>
         </Pressable>
 
@@ -68,11 +71,24 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
     marginTop: theme.spacing.xl,
   },
+  card: {
+    gap: theme.spacing.md,
+  },
+  iconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: theme.radius.round,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,77,136,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(255,77,136,0.24)",
+  },
   cardTitle: {
     color: theme.colors.text,
-    fontSize: theme.typography.subheading,
+    fontSize: theme.typography.heading,
     fontWeight: "900",
-    marginBottom: theme.spacing.sm,
+    lineHeight: 28,
   },
   text: {
     color: theme.colors.textMuted,
@@ -83,7 +99,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: theme.spacing.md,
-    marginTop: theme.spacing.md,
   },
   link: {
     color: theme.colors.text,
@@ -94,11 +109,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: theme.spacing.md,
-    borderRadius: theme.radius.xl,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: "rgba(255,255,255,0.045)",
+    backgroundColor: theme.colors.surfaceMuted,
     padding: theme.spacing.md,
+  },
+  pressed: {
+    opacity: 0.86,
+    transform: [{ scale: 0.99 }],
   },
   checkbox: {
     width: 24,
@@ -110,9 +129,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   checkboxOn: {
-    backgroundColor: theme.colors.orbitRedDark,
+    backgroundColor: theme.colors.orbitRed,
     borderColor: theme.colors.orbitRed,
-    ...theme.shadows.glow,
   },
   checkText: {
     flex: 1,

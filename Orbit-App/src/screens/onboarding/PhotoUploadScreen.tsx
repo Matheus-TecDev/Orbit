@@ -1,9 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import ProfilePhotoCard from "../../components/profile/ProfilePhotoCard";
 import {
   OrbitButton,
+  OrbitCard,
   OrbitErrorMessage,
   OrbitHeader,
   OrbitProgressBar,
@@ -11,34 +12,15 @@ import {
 } from "../../components/ui";
 import { useAuth } from "../../contexts/AuthContext";
 import { useOnboarding } from "../../contexts/OnboardingContext";
-import { theme } from "../../styles/theme";
 import type { PhotoUploadScreenProps } from "../../navigation/types";
-import type { UserPhotoSlot } from "../../types/profile";
-
-const initialSlots: UserPhotoSlot[] = [
-  { id: "photo-1", label: "Foto 1", isPrimary: true, filled: true },
-  { id: "photo-2", label: "Foto 2", isPrimary: false, filled: false },
-  { id: "photo-3", label: "Foto 3", isPrimary: false, filled: false },
-  { id: "photo-4", label: "Foto 4", isPrimary: false, filled: false },
-  { id: "photo-5", label: "Foto 5", isPrimary: false, filled: false },
-  { id: "photo-6", label: "Foto 6", isPrimary: false, filled: false },
-];
+import { theme } from "../../styles/theme";
 
 export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps) {
   const { completeOnboarding, loading, error, clearError } = useAuth();
-  const { buildCompatibilityPayload, buildPreferencePayload, buildProfilePayload } = useOnboarding();
-  const [slots, setSlots] = useState<UserPhotoSlot[]>(initialSlots);
+  const { basicInfo, buildPreferencePayload, buildProfilePayload } = useOnboarding();
+  const [placeholderSelected, setPlaceholderSelected] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
-
-  function toggleSlot(slotId: string) {
-    clearError();
-    setLocalError(null);
-    setSlots((current) =>
-      current.map((slot) =>
-        slot.id === slotId ? { ...slot, filled: !slot.filled } : slot,
-      ),
-    );
-  }
+  const initial = basicInfo.publicName.trim().charAt(0).toUpperCase() || "O";
 
   async function finishProfile() {
     clearError();
@@ -48,7 +30,6 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
       await completeOnboarding(
         buildProfilePayload(),
         buildPreferencePayload(),
-        buildCompatibilityPayload(),
       );
     } catch (caughtError) {
       setLocalError(
@@ -61,25 +42,51 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Fotos" subtitle="Etapa 9 de 9" onBack={navigation.goBack} />
+      <OrbitHeader title="Foto" subtitle="Etapa 5 de 5" onBack={navigation.goBack} />
       <OrbitProgressBar value={100} />
 
       <View style={styles.stack}>
-        <Text style={styles.helper}>Upload visual fake para representar seu perfil.</Text>
-        <View style={styles.grid}>
-          {slots.map((slot) => (
-            <ProfilePhotoCard
-              key={slot.id}
-              slot={slot}
-              onPress={() => toggleSlot(slot.id)}
-            />
-          ))}
+        <View style={styles.copy}>
+          <Text style={styles.title}>Comece com um placeholder.</Text>
+          <Text style={styles.subtitle}>
+            Upload real pode entrar depois. Por enquanto, o Orbit cria uma presença visual para o feed.
+          </Text>
         </View>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setPlaceholderSelected((current) => !current)}
+          style={({ pressed }) => [styles.photoPreview, pressed && styles.pressed]}
+        >
+          <View style={styles.avatar}>
+            <Text style={styles.initial}>{initial}</Text>
+          </View>
+          <View style={styles.photoCopy}>
+            <Text style={styles.photoTitle}>
+              {placeholderSelected ? "Placeholder ativo" : "Adicionar depois"}
+            </Text>
+            <Text style={styles.photoText}>
+              Seu perfil será criado com uma presença visual simples. Você poderá melhorar fotos ao completar o perfil.
+            </Text>
+          </View>
+          <View style={[styles.toggle, placeholderSelected && styles.toggleOn]}>
+            {placeholderSelected ? (
+              <Ionicons name="checkmark" color={theme.colors.text} size={16} />
+            ) : null}
+          </View>
+        </Pressable>
+
+        <OrbitCard style={styles.note}>
+          <Ionicons name="lock-closed" color={theme.colors.textMuted} size={18} />
+          <Text style={styles.noteText}>
+            O onboarding termina aqui. Preferências avançadas e perguntas de compatibilidade ficam no perfil.
+          </Text>
+        </OrbitCard>
 
         <OrbitErrorMessage message={localError ?? error} />
 
         <OrbitButton
-          label={loading ? "Salvando perfil..." : "Finalizar perfil"}
+          label={loading ? "Salvando perfil..." : "Entrar no Orbit"}
           loading={loading}
           onPress={finishProfile}
         />
@@ -91,16 +98,88 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
 const styles = StyleSheet.create({
   stack: {
     gap: theme.spacing.lg,
-    marginTop: theme.spacing.xxl,
+    marginTop: theme.spacing.xl,
   },
-  helper: {
+  copy: {
+    gap: theme.spacing.sm,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.typography.heading,
+    fontWeight: "900",
+    lineHeight: 28,
+  },
+  subtitle: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
+  },
+  photoPreview: {
+    minHeight: 156,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.borderStrong,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.md,
+  },
+  pressed: {
+    opacity: 0.86,
+    transform: [{ scale: 0.99 }],
+  },
+  avatar: {
+    width: 86,
+    height: 112,
+    borderRadius: theme.radius.xl,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.surfaceStrong,
+    borderWidth: 1,
+    borderColor: "rgba(255,77,136,0.24)",
+  },
+  initial: {
+    color: theme.colors.text,
+    fontSize: 42,
+    fontWeight: "900",
+  },
+  photoCopy: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  photoTitle: {
+    color: theme.colors.text,
+    fontSize: theme.typography.body,
+    fontWeight: "900",
+  },
+  photoText: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 19,
   },
-  grid: {
+  toggle: {
+    width: 28,
+    height: 28,
+    borderRadius: theme.radius.round,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  toggleOn: {
+    backgroundColor: theme.colors.orbitRed,
+    borderColor: theme.colors.orbitRed,
+  },
+  note: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "flex-start",
     gap: theme.spacing.sm,
+  },
+  noteText: {
+    flex: 1,
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.small,
+    lineHeight: 19,
   },
 });

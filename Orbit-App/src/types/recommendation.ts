@@ -1,5 +1,5 @@
-import type { OrbitUser } from "./user";
 import type { IntentKey } from "./profile";
+import type { OrbitUser } from "./user";
 
 export type UserRecommendation = OrbitUser & {
   profileId: string;
@@ -21,7 +21,7 @@ export type ApiRecommendation = {
   reasons: string[];
 };
 
-const fallbackColors = ["#B91C1C", "#9D174D", "#7F1D1D", "#991B1B"] as const;
+const fallbackColors = ["#7A1F32", "#53354A", "#3F3B6C", "#5E2C46"] as const;
 
 export function mapApiRecommendationToFeedUser(
   recommendation: ApiRecommendation,
@@ -46,7 +46,7 @@ export function mapApiRecommendationToFeedUser(
     reasons:
       recommendation.reasons.length > 0
         ? recommendation.reasons
-        : ["Compatibilidade calculada pela API do Orbit AI"],
+        : ["Compatibilidade calculada pelo Orbit"],
   };
 }
 

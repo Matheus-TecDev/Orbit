@@ -15,8 +15,8 @@ import {
   OrbitScreen,
 } from "../../components/ui";
 import { useOnboarding } from "../../contexts/OnboardingContext";
-import { theme } from "../../styles/theme";
 import type { PreferencesScreenProps } from "../../navigation/types";
+import { theme } from "../../styles/theme";
 import type { GenderOption } from "../../types/profile";
 
 export default function PreferencesScreen({ navigation }: PreferencesScreenProps) {
@@ -28,7 +28,6 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
   const minAgeNumber = Number.parseInt(minAge, 10);
   const maxAgeNumber = Number.parseInt(maxAge, 10);
   const hasValidAges = minAgeNumber <= maxAgeNumber;
-  const canContinue = hasValidAges && genders.length > 0;
 
   function toggleGender(gender: GenderOption) {
     setGenders((current) => {
@@ -55,8 +54,8 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Preferências" subtitle="Etapa 4 de 9" onBack={navigation.goBack} />
-      <OrbitProgressBar value={44} />
+      <OrbitHeader title="Preferências" subtitle="Opcional" onBack={navigation.goBack} />
+      <OrbitProgressBar value={60} />
 
       <View style={styles.form}>
         <Text style={styles.title}>Faixa de idade</Text>
@@ -70,7 +69,7 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
         ) : null}
 
         <Text style={styles.title}>Distância máxima</Text>
-        <Text style={styles.hint}>Use um raio prático para ampliar ou focar suas recomendações.</Text>
+        <Text style={styles.hint}>Use um raio prático para ampliar ou focar recomendações.</Text>
         <OptionScroller
           label="Distância"
           options={distanceOptions}
@@ -81,7 +80,7 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
 
         <Text style={styles.label}>Gêneros de interesse</Text>
         <Text style={styles.hint}>
-          Mulher, Homem e Pessoa não binária podem ser combinados. Prefiro não informar é exclusivo.
+          Deixe vazio para não filtrar por gênero nesta etapa.
         </Text>
         <View style={styles.chips}>
           {genderOptions.map((option) => (
@@ -94,7 +93,7 @@ export default function PreferencesScreen({ navigation }: PreferencesScreenProps
           ))}
         </View>
 
-        <OrbitButton label="Continuar" disabled={!canContinue} onPress={continueToInterests} />
+        <OrbitButton label="Continuar" disabled={!hasValidAges} onPress={continueToInterests} />
       </View>
     </OrbitScreen>
   );
@@ -135,7 +134,7 @@ function OptionScroller({
 const styles = StyleSheet.create({
   form: {
     gap: theme.spacing.lg,
-    marginTop: theme.spacing.xxl,
+    marginTop: theme.spacing.xl,
   },
   row: {
     flexDirection: "row",
