@@ -22,7 +22,7 @@ export type MatchListItem = {
   isNew: boolean;
 };
 
-const fallbackColors = ["#B91C1C", "#9D174D", "#7F1D1D", "#991B1B"] as const;
+const fallbackColors = ["#7C5CFC", "#5B7FFF", "#2DD4BF", "#E85B7A"] as const;
 
 export function mapApiMatchToListItem(
   match: ApiMatch,

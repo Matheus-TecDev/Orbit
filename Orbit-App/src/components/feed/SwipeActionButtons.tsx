@@ -70,6 +70,13 @@ function ActionButton({
   loading = false,
   disabled = false,
 }: ActionButtonProps) {
+  const iconColor =
+    tone === "primary"
+      ? theme.colors.rose
+      : tone === "gold"
+        ? theme.colors.teal
+        : theme.colors.textSecondary;
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -87,12 +94,12 @@ function ActionButton({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={tone === "gold" ? theme.colors.warning : theme.colors.text}
+          color={iconColor}
         />
       ) : (
         <Ionicons
           name={icon}
-          color={tone === "gold" ? theme.colors.warning : theme.colors.text}
+          color={iconColor}
           size={20}
         />
       )}
@@ -111,7 +118,7 @@ const styles = StyleSheet.create({
   action: {
     flex: 1,
     minHeight: 62,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing.xs,
@@ -120,15 +127,15 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
   },
   primary: {
-    backgroundColor: theme.colors.orbitRedDark,
-    borderColor: "rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(232,91,122,0.12)",
+    borderColor: "rgba(232,91,122,0.30)",
   },
   muted: {
-    backgroundColor: theme.colors.surfaceMuted,
+    backgroundColor: "rgba(255,255,255,0.05)",
   },
   gold: {
-    backgroundColor: "rgba(242,184,75,0.10)",
-    borderColor: "rgba(242,184,75,0.30)",
+    backgroundColor: "rgba(45,212,191,0.12)",
+    borderColor: "rgba(45,212,191,0.30)",
   },
   disabled: {
     opacity: 0.58,
@@ -140,6 +147,6 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.text,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
 });

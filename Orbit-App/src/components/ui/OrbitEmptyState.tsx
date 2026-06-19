@@ -28,7 +28,7 @@ export default function OrbitEmptyState({
   return (
     <OrbitCard style={styles.card}>
       <View style={styles.iconWrap}>
-        <Ionicons name={icon} color={theme.colors.orbitRed} size={22} />
+        <Ionicons name={icon} color={theme.colors.purple} size={22} />
       </View>
       <View style={styles.copy}>
         <Text style={styles.title}>{title}</Text>
@@ -54,9 +54,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.orbitRedSoft,
+    backgroundColor: theme.colors.purpleSoft,
     borderWidth: 1,
-    borderColor: "rgba(225,6,0,0.34)",
+    borderColor: "rgba(124,92,252,0.25)",
   },
   copy: {
     gap: theme.spacing.xs,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 23,
   },
   description: {

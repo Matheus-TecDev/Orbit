@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   copy: {
     color: theme.colors.textMuted,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   optionTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   optionDescription: {
     color: theme.colors.textMuted,
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   switchTrackOn: {
-    backgroundColor: theme.colors.orbitRedDark,
+    backgroundColor: theme.colors.purple,
     borderColor: "rgba(255,255,255,0.18)",
   },
   switchThumb: {
@@ -217,12 +217,12 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   futureBadge: {
     color: theme.colors.textSubtle,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
     borderRadius: theme.radius.round,
     borderWidth: 1,
     borderColor: theme.colors.hairline,

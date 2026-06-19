@@ -110,7 +110,7 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                     </Text>
                   </View>
                   {chat.unread ? (
-                    <Ionicons name="ellipse" color={theme.colors.orbitRed} size={11} />
+                    <Ionicons name="ellipse" color={theme.colors.purple} size={11} />
                   ) : null}
                 </OrbitCard>
               </Pressable>
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.orbitRedSoft,
+    backgroundColor: theme.colors.purpleSoft,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   initial: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   online: {
     position: "absolute",
@@ -174,12 +174,12 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   time: {
     color: theme.colors.textSubtle,
     fontSize: theme.typography.tiny,
-    fontWeight: "700",
+    fontWeight: "500",
   },
   message: {
     color: theme.colors.textMuted,

@@ -132,11 +132,11 @@ const styles = StyleSheet.create({
   groupTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   status: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
 });

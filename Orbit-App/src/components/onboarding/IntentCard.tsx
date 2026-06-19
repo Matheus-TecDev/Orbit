@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   selected: {
-    borderColor: "rgba(255,77,136,0.48)",
-    backgroundColor: theme.colors.accentPinkSoft,
+    borderColor: "rgba(124,92,252,0.35)",
+    backgroundColor: theme.colors.purpleSoft,
   },
   pressed: {
     opacity: 0.84,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.hairline,
   },
   iconSelected: {
-    backgroundColor: theme.colors.orbitRedDark,
+    backgroundColor: theme.colors.purple,
     borderColor: "rgba(255,255,255,0.18)",
   },
   copy: {
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   description: {
     color: theme.colors.textMuted,

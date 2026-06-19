@@ -18,7 +18,7 @@ export default function ProfileCompletionCard({
     <OrbitCard style={styles.card}>
       <View style={styles.header}>
         <View style={styles.iconWrap}>
-          <Ionicons name="sparkles" color={theme.colors.accentPink} size={18} />
+          <Ionicons name="sparkles" color={theme.colors.purpleLight} size={18} />
         </View>
         <View style={styles.headerCopy}>
           <Text style={styles.title}>Perfil {percentage}% completo</Text>
@@ -60,9 +60,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.accentPinkSoft,
+    backgroundColor: theme.colors.purpleSoft,
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.26)",
+    borderColor: "rgba(124,92,252,0.25)",
   },
   headerCopy: {
     flex: 1,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   subtitle: {
     color: theme.colors.textMuted,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   suggestions: {
     gap: theme.spacing.sm,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.accentPink,
+    backgroundColor: theme.colors.purpleLight,
     marginTop: 6,
   },
   suggestion: {

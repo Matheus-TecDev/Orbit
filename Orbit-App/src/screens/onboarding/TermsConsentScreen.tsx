@@ -23,7 +23,7 @@ export default function TermsConsentScreen({ navigation }: TermsConsentScreenPro
       <View style={styles.stack}>
         <OrbitCard elevated style={styles.card}>
           <View style={styles.iconWrap}>
-            <Ionicons name="sparkles" color={theme.colors.accentPink} size={22} />
+            <Ionicons name="sparkles" color={theme.colors.purpleLight} size={22} />
           </View>
           <Text style={styles.cardTitle}>Compatibilidade com transparência</Text>
           <Text style={styles.text}>
@@ -80,14 +80,14 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,77,136,0.10)",
+    backgroundColor: "rgba(124,92,252,0.15)",
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.24)",
+    borderColor: "rgba(124,92,252,0.25)",
   },
   cardTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   text: {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   link: {
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   checkRow: {
     flexDirection: "row",
@@ -129,8 +129,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   checkboxOn: {
-    backgroundColor: theme.colors.orbitRed,
-    borderColor: theme.colors.orbitRed,
+    backgroundColor: theme.colors.purple,
+    borderColor: theme.colors.purple,
   },
   checkText: {
     flex: 1,

@@ -468,12 +468,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: theme.colors.surfaceStrong,
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.24)",
+    borderColor: "rgba(124,92,252,0.25)",
   },
   initial: {
     color: theme.colors.text,
     fontSize: 42,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   heroCopy: {
     flex: 1,
@@ -482,24 +482,24 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   meta: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   intent: {
     alignSelf: "flex-start",
     color: theme.colors.text,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
     textTransform: "uppercase",
     borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.accentPinkSoft,
+    backgroundColor: theme.colors.purpleSoft,
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.28)",
+    borderColor: "rgba(124,92,252,0.25)",
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: 4,
   },
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   groupTitle: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
     textTransform: "uppercase",
   },
   chips: {
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   preferencePillText: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   helpText: {
     color: theme.colors.textMuted,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   status: {
     color: theme.colors.textMuted,
@@ -589,6 +589,6 @@ const styles = StyleSheet.create({
   profileActionText: {
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
 });

@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   checkboxOn: {
-    backgroundColor: theme.colors.orbitRedDark,
-    borderColor: theme.colors.orbitRed,
+    backgroundColor: theme.colors.purple,
+    borderColor: theme.colors.purple,
   },
   checkText: {
     flex: 1,

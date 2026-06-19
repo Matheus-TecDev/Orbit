@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   initial: {
     color: theme.colors.text,
     fontSize: 40,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   userCopy: {
     gap: 3,
@@ -122,20 +122,20 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   meta: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
   },
   intent: {
-    color: theme.colors.orbitRed,
+    color: theme.colors.purple,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   compatibility: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.tiny,
-    fontWeight: "800",
+    fontWeight: "500",
   },
 });

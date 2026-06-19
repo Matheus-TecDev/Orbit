@@ -28,7 +28,7 @@ const navigationTheme: NavigationTheme = {
     card: theme.colors.background,
     text: theme.colors.text,
     border: theme.colors.border,
-    primary: theme.colors.orbitRed,
+    primary: theme.colors.purple,
   },
 };
 
@@ -62,7 +62,7 @@ function BootstrapLoading() {
     <OrbitScreen scroll={false}>
       <View style={styles.loadingWrap}>
         <OrbitCard elevated style={styles.loadingCard}>
-          <ActivityIndicator color={theme.colors.orbitRed} size="small" />
+          <ActivityIndicator color={theme.colors.purple} size="small" />
           <Text style={styles.loadingText}>Restaurando sessão...</Text>
         </OrbitCard>
       </View>
@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
   loadingText: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "400",
   },
 });

@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   initial: {
     color: theme.colors.text,
     fontSize: 96,
-    fontWeight: "900",
+    fontWeight: "500",
     opacity: 0.94,
   },
   photoMeta: {
@@ -154,13 +154,13 @@ const styles = StyleSheet.create({
   distanceText: {
     color: theme.colors.text,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   intentPill: {
     flexShrink: 1,
     color: theme.colors.text,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
     borderRadius: theme.radius.round,
     overflow: "hidden",
     backgroundColor: "rgba(0,0,0,0.42)",
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   meta: {
     color: theme.colors.textMuted,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   chips: {
     flexDirection: "row",
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     minHeight: 58,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.28)",
-    backgroundColor: theme.colors.accentPinkSoft,
+    borderColor: "rgba(124,92,252,0.25)",
+    backgroundColor: theme.colors.purpleSoft,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -224,12 +224,12 @@ const styles = StyleSheet.create({
   explainButtonText: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   explainButtonMeta: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.tiny,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   explainBox: {
     borderRadius: theme.radius.lg,

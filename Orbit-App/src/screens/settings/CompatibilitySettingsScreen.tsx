@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   successText: {
     color: theme.colors.success,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   summaryCard: {
     gap: theme.spacing.md,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   summaryMeta: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   section: {
     gap: theme.spacing.md,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   sectionText: {
     color: theme.colors.textMuted,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   groupTitle: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
     textTransform: "uppercase",
   },
 });

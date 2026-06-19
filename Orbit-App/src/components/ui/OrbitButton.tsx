@@ -40,7 +40,7 @@ export default function OrbitButton({
         <View style={styles.icon}>
           <ActivityIndicator
             size="small"
-            color={variant === "google" ? "#202124" : theme.colors.text}
+            color={variant === "google" ? "#202124" : theme.colors.white}
           />
         </View>
       ) : icon ? (
@@ -53,6 +53,7 @@ export default function OrbitButton({
           styles.text,
           variant === "google" && styles.googleText,
           (variant === "secondary" || variant === "ghost") && styles.secondaryText,
+          variant === "danger" && styles.dangerText,
         ]}
       >
         {label}
@@ -60,7 +61,7 @@ export default function OrbitButton({
     </>
   );
 
-  if (variant === "instagram") {
+  if (variant === "primary" || variant === "instagram") {
     return (
       <Pressable
         accessibilityRole="button"
@@ -74,7 +75,7 @@ export default function OrbitButton({
         ]}
       >
         <LinearGradient
-          colors={instagramGradient}
+          colors={variant === "primary" ? theme.gradients.primary : instagramGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.base, compact && styles.compact]}
@@ -93,7 +94,6 @@ export default function OrbitButton({
       style={({ pressed }) => [
         styles.base,
         compact && styles.compact,
-        variant === "primary" && styles.primary,
         variant === "secondary" && styles.secondary,
         variant === "ghost" && styles.ghost,
         variant === "google" && styles.google,
@@ -109,16 +109,16 @@ export default function OrbitButton({
 
 const styles = StyleSheet.create({
   pressable: {
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.md,
     overflow: "hidden",
   },
   compactOuter: {
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.sm,
   },
   base: {
     minHeight: 54,
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: theme.spacing.xl,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -126,23 +126,18 @@ const styles = StyleSheet.create({
   },
   compact: {
     minHeight: 44,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.sm,
     paddingHorizontal: theme.spacing.md,
   },
-  primary: {
-    backgroundColor: theme.colors.orbitRedDark,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.16)",
-  },
   secondary: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.borderEmphasis,
   },
   ghost: {
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.borderEmphasis,
   },
   google: {
     backgroundColor: theme.colors.white,
@@ -150,9 +145,9 @@ const styles = StyleSheet.create({
     borderColor: "#DADCE0",
   },
   danger: {
-    backgroundColor: "rgba(255,92,112,0.12)",
+    backgroundColor: "rgba(232,91,122,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(255,92,112,0.34)",
+    borderColor: "rgba(232,91,122,0.30)",
   },
   disabled: {
     opacity: 0.45,
@@ -168,15 +163,18 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.sm,
   },
   text: {
-    color: theme.colors.text,
+    color: theme.colors.white,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
     textAlign: "center",
   },
   googleText: {
     color: "#202124",
   },
   secondaryText: {
-    color: theme.colors.text,
+    color: theme.colors.textSecondary,
+  },
+  dangerText: {
+    color: theme.colors.rose,
   },
 });

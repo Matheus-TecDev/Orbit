@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   subtitle: {

@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   initial: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   info: {
     flex: 1,
@@ -161,21 +161,21 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   badge: {
     color: theme.colors.text,
-    backgroundColor: theme.colors.orbitRedDark,
+    backgroundColor: theme.colors.purple,
     borderRadius: theme.radius.round,
     overflow: "hidden",
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 3,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   meta: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "700",
+    fontWeight: "500",
   },
 });

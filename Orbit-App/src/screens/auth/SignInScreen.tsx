@@ -156,14 +156,14 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.hero,
-    fontWeight: "900",
+    fontWeight: "500",
     textAlign: "center",
     lineHeight: 39,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
     marginTop: theme.spacing.xs,
     textTransform: "uppercase",
   },
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     color: theme.colors.text,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   actions: {
     gap: theme.spacing.sm,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   dividerText: {
     color: theme.colors.textSubtle,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
     textTransform: "uppercase",
   },
   emailForm: {
@@ -214,11 +214,11 @@ const styles = StyleSheet.create({
   link: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   linkMuted: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.body,
-    fontWeight: "700",
+    fontWeight: "500",
   },
 });

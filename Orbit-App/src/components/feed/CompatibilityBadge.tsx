@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, Text } from "react-native";
 
 import { theme } from "../../styles/theme";
 
@@ -8,33 +9,35 @@ type CompatibilityBadgeProps = {
 
 export default function CompatibilityBadge({ value }: CompatibilityBadgeProps) {
   return (
-    <View style={styles.badge}>
+    <LinearGradient
+      colors={theme.gradients.match}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.badge}
+    >
       <Text style={styles.value}>{value}%</Text>
       <Text style={styles.label}>match</Text>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
     minWidth: 82,
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.accentPinkSoft,
-    borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.28)",
+    borderRadius: 10,
     paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.md,
     alignItems: "center",
   },
   value: {
-    color: theme.colors.text,
-    fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    color: theme.colors.white,
+    fontSize: theme.typography.body,
+    fontWeight: "500",
   },
   label: {
-    color: theme.colors.textMuted,
+    color: theme.colors.white,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
     textTransform: "uppercase",
   },
 });

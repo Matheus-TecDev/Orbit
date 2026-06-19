@@ -18,7 +18,7 @@ export default function BottomTabIcon({ name, focused, size }: BottomTabIconProp
       <Ionicons
         name={name}
         size={size}
-        color={focused ? theme.colors.text : theme.colors.textSubtle}
+        color={focused ? theme.colors.purpleLight : theme.colors.textMutedToken}
       />
     </View>
   );
@@ -28,13 +28,13 @@ const styles = StyleSheet.create({
   wrap: {
     width: 38,
     height: 30,
-    borderRadius: theme.radius.round,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
   focused: {
-    backgroundColor: theme.colors.orbitRedSoft,
+    backgroundColor: "rgba(124,92,252,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(225,6,0,0.26)",
+    borderColor: theme.colors.borderAccent,
   },
 });

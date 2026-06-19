@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   subtitle: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   selectBox: {
     minHeight: 54,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   selectText: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   placeholder: {
     color: theme.colors.textSubtle,

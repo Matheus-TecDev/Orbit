@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, View } from "react-native";
 
 import { theme } from "../../styles/theme";
@@ -11,7 +12,12 @@ export default function OrbitProgressBar({ value }: OrbitProgressBarProps) {
 
   return (
     <View style={styles.track}>
-      <View style={[styles.fill, { width: `${clamped}%` }]} />
+      <LinearGradient
+        colors={theme.gradients.primary}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={[styles.fill, { width: `${clamped}%` }]}
+      />
     </View>
   );
 }
@@ -19,15 +25,12 @@ export default function OrbitProgressBar({ value }: OrbitProgressBarProps) {
 const styles = StyleSheet.create({
   track: {
     height: 6,
-    borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.surfaceStrong,
+    borderRadius: 3,
+    backgroundColor: "rgba(255,255,255,0.08)",
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: theme.colors.hairline,
   },
   fill: {
     height: "100%",
-    borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.accentPink,
+    borderRadius: 3,
   },
 });

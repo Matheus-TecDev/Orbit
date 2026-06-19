@@ -25,7 +25,7 @@ export default function ProfilePhotoCard({ slot, onPress }: ProfilePhotoCardProp
       {slot.filled ? (
         <LinearGradient
           pointerEvents="none"
-          colors={["rgba(225,6,0,0.20)", "rgba(255,255,255,0.05)"]}
+          colors={["rgba(124,92,252,0.15)", "rgba(255,255,255,0.05)"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   filled: {
-    backgroundColor: "rgba(225,6,0,0.12)",
+    backgroundColor: "rgba(124,92,252,0.15)",
   },
   primary: {
-    borderColor: "rgba(225,6,0,0.72)",
+    borderColor: "rgba(124,92,252,0.35)",
   },
   pressed: {
     opacity: 0.78,
@@ -79,12 +79,12 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.tiny,
-    fontWeight: "700",
+    fontWeight: "500",
     textAlign: "center",
   },
   badge: {
-    color: theme.colors.orbitRed,
+    color: theme.colors.purple,
     fontSize: theme.typography.tiny,
-    fontWeight: "900",
+    fontWeight: "500",
   },
 });

@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
     lineHeight: 19,
   },
 });

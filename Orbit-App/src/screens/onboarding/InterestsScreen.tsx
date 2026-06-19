@@ -64,7 +64,7 @@ export default function InterestsScreen({ navigation }: InterestsScreenProps) {
         </View>
 
         <View style={styles.counter}>
-          <Ionicons name="checkmark-circle" color={theme.colors.accentPink} size={18} />
+          <Ionicons name="checkmark-circle" color={theme.colors.purpleLight} size={18} />
           <Text style={styles.counterText}>
             {selected.length}/{maxSelections} selecionados
           </Text>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   subtitle: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   counterText: {
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   category: {
     gap: theme.spacing.md,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   categoryTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   categorySubtitle: {
     color: theme.colors.textSubtle,

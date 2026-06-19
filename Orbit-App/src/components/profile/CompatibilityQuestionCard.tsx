@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   question: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "800",
+    fontWeight: "500",
     lineHeight: 21,
   },
   scale: {

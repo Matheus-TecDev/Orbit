@@ -133,7 +133,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
 
       <OrbitCard elevated style={styles.suggestion}>
         <View style={styles.suggestionIcon}>
-          <Ionicons name="sparkles" color={theme.colors.orbitRed} size={16} />
+          <Ionicons name="sparkles" color={theme.colors.purple} size={16} />
         </View>
         <Text style={styles.suggestionText}>
           Use um interesse em comum ou uma pergunta leve para começar a conversa.
@@ -146,7 +146,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           onChangeText={setDraft}
           placeholder="Mensagem"
           placeholderTextColor={theme.colors.textSubtle}
-          selectionColor={theme.colors.orbitRed}
+          selectionColor={theme.colors.purple}
           style={styles.input}
         />
         <Pressable
@@ -184,9 +184,8 @@ const styles = StyleSheet.create({
   },
   myBubble: {
     alignSelf: "flex-end",
-    backgroundColor: theme.colors.orbitRedDark,
+    backgroundColor: theme.colors.purple,
     borderTopRightRadius: theme.radius.sm,
-    ...theme.shadows.glow,
   },
   matchBubble: {
     alignSelf: "flex-start",
@@ -203,7 +202,7 @@ const styles = StyleSheet.create({
   messageTime: {
     color: "rgba(255,255,255,0.52)",
     fontSize: theme.typography.tiny,
-    fontWeight: "700",
+    fontWeight: "500",
     alignSelf: "flex-end",
   },
   suggestion: {
@@ -219,7 +218,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.orbitRedSoft,
+    backgroundColor: theme.colors.purpleSoft,
   },
   suggestionText: {
     flex: 1,
@@ -249,8 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.orbitRedDark,
-    ...theme.shadows.glow,
+    backgroundColor: theme.colors.purple,
   },
   sendPressed: {
     opacity: 0.82,

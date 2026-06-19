@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.heading,
-    fontWeight: "900",
+    fontWeight: "500",
     lineHeight: 28,
   },
   subtitle: {
@@ -137,12 +137,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: theme.colors.surfaceStrong,
     borderWidth: 1,
-    borderColor: "rgba(255,77,136,0.24)",
+    borderColor: "rgba(124,92,252,0.25)",
   },
   initial: {
     color: theme.colors.text,
     fontSize: 42,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   photoCopy: {
     flex: 1,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   photoTitle: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   photoText: {
     color: theme.colors.textMuted,
@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   toggleOn: {
-    backgroundColor: theme.colors.orbitRed,
-    borderColor: theme.colors.orbitRed,
+    backgroundColor: theme.colors.purple,
+    borderColor: theme.colors.purple,
   },
   note: {
     flexDirection: "row",

@@ -17,14 +17,13 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: theme.radius.xl,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.borderAccent,
     backgroundColor: theme.colors.card,
-    padding: theme.spacing.lg,
+    padding: 20,
     overflow: "hidden",
   },
   elevated: {
-    backgroundColor: theme.colors.cardStrong,
-    borderColor: theme.colors.borderStrong,
-    ...theme.shadows.elevated,
+    backgroundColor: theme.colors.surface2,
+    borderColor: theme.colors.borderAccent,
   },
 });

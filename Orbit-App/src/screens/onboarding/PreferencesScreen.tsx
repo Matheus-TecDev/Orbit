@@ -151,12 +151,12 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   label: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontWeight: "500",
   },
   hint: {
     color: theme.colors.textSubtle,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   error: {
     color: theme.colors.danger,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontWeight: "500",
   },
   chips: {
     flexDirection: "row",
