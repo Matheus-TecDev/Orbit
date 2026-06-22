@@ -7,9 +7,10 @@ import {
 } from "react";
 
 import type { CompatibilityPayload } from "../types/compatibility";
+import { legacyIntentionByMode } from "../constants/options";
 import type { PreferencePayload } from "../services/preferenceService";
 import type { ProfilePayload } from "../services/profileService";
-import type { GenderOption, IntentKey } from "../types/profile";
+import type { GenderOption, IntentMode } from "../types/profile";
 import { parseBirthDateToApi } from "../utils/dateMask";
 
 type BasicInfoDraft = {
@@ -29,7 +30,7 @@ type PreferenceDraft = {
 
 type OnboardingState = {
   basicInfo: BasicInfoDraft;
-  intent: IntentKey;
+  intentMode: IntentMode;
   preferences: PreferenceDraft;
   interests: string[];
   compatibilityAnswers: Record<string, number>;
@@ -39,7 +40,7 @@ type OnboardingState = {
 
 type OnboardingContextValue = OnboardingState & {
   setBasicInfo: (basicInfo: BasicInfoDraft) => void;
-  setIntent: (intent: IntentKey) => void;
+  setIntentMode: (intentMode: IntentMode) => void;
   setPreferences: (preferences: PreferenceDraft) => void;
   setInterests: (interests: string[]) => void;
   setCompatibilityAnswers: (answers: Record<string, number>) => void;
@@ -75,7 +76,7 @@ type OnboardingProviderProps = {
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [basicInfo, setBasicInfo] = useState<BasicInfoDraft>(defaultBasicInfo);
-  const [intent, setIntent] = useState<IntentKey>("serious");
+  const [intentMode, setIntentMode] = useState<IntentMode>("SERIOUS");
   const [preferences, setPreferences] =
     useState<PreferenceDraft>(defaultPreferences);
   const [interests, setInterests] = useState<string[]>(defaultInterests);
@@ -86,14 +87,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const value = useMemo<OnboardingContextValue>(
     () => ({
       basicInfo,
-      intent,
+      intentMode,
       preferences,
       interests,
       compatibilityAnswers,
       compatibilityPriorities,
       compatibilityDealbreakers,
       setBasicInfo,
-      setIntent,
+      setIntentMode,
       setPreferences,
       setInterests,
       setCompatibilityAnswers,
@@ -106,7 +107,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         gender: null,
         city: emptyToNull(basicInfo.city),
         country: "Brasil",
-        intention: intent,
+        intention: legacyIntentionByMode[intentMode],
+        intent_mode: intentMode,
         photo_url: null,
         is_visible: true,
         interests,
@@ -120,7 +122,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         preferred_genders: preferences.genders
           .filter((gender) => gender !== "Prefiro não informar")
           .map(toBackendGender),
-        intention: intent,
+        intention: legacyIntentionByMode[intentMode],
         interests,
       }),
       buildCompatibilityPayload: () => ({
@@ -140,7 +142,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }),
     [
       basicInfo,
-      intent,
+      intentMode,
       preferences,
       interests,
       compatibilityAnswers,

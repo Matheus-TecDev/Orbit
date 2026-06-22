@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from app.core.intent_mode_config import legacy_intention_for_mode, mode_from_legacy_intention
 from app.schemas.profile import normalize_interest_names, normalize_intention
 
 
@@ -71,6 +72,8 @@ class PreferenceUpdate(BaseModel):
     def validate_age_range(self) -> "PreferenceUpdate":
         if self.min_age is not None and self.max_age is not None and self.max_age < self.min_age:
             raise ValueError("max_age must be greater than or equal to min_age")
+        if "intention" in self.model_fields_set:
+            self.intention = legacy_intention_for_mode(mode_from_legacy_intention(self.intention))
         return self
 
 

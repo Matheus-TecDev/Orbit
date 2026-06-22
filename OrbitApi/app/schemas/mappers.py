@@ -21,6 +21,7 @@ def profile_to_read(profile: Profile) -> ProfileRead:
         city=profile.city,
         country=profile.country,
         intention=profile.intention,
+        intent_mode=profile.intent_mode,
         photo_url=profile.photo_url,
         is_visible=profile.is_visible,
         interests=[interest.name for interest in profile.interests],

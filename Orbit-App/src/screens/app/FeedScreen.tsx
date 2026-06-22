@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import UserRecommendationCard from "../../components/feed/UserRecommendationCard";
 import type { FeedAction } from "../../components/feed/SwipeActionButtons";
@@ -10,15 +10,17 @@ import {
   OrbitScreen,
   SkeletonCard,
 } from "../../components/ui";
+import { getIntentMode } from "../../constants/options";
 import { useAuth } from "../../contexts/AuthContext";
 import type { FeedScreenProps } from "../../navigation/types";
 import { likeProfile, passProfile } from "../../services/matchService";
 import { getFeedRecommendations } from "../../services/recommendationService";
 import { theme } from "../../styles/theme";
+import type { IntentMode } from "../../types/profile";
 import type { UserRecommendation } from "../../types/recommendation";
 
 export default function FeedScreen(_props: FeedScreenProps) {
-  const { token } = useAuth();
+  const { token, profile } = useAuth();
   const [recommendations, setRecommendations] = useState<UserRecommendation[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -26,6 +28,8 @@ export default function FeedScreen(_props: FeedScreenProps) {
   const [feedError, setFeedError] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<FeedAction | null>(null);
   const currentUser = recommendations[currentIndex];
+  const intentMode = getIntentMode(profile?.intent_mode ?? profile?.intention);
+  const feedContent = getFeedContent(intentMode);
 
   useEffect(() => {
     let isActive = true;
@@ -42,11 +46,9 @@ export default function FeedScreen(_props: FeedScreenProps) {
 
       try {
         const nextRecommendations = await getFeedRecommendations(token);
-
         if (!isActive) {
           return;
         }
-
         setRecommendations(nextRecommendations);
         setCurrentIndex(0);
         setExpandedId(null);
@@ -54,7 +56,6 @@ export default function FeedScreen(_props: FeedScreenProps) {
         if (!isActive) {
           return;
         }
-
         setRecommendations([]);
         setCurrentIndex(0);
         setExpandedId(null);
@@ -67,11 +68,10 @@ export default function FeedScreen(_props: FeedScreenProps) {
     }
 
     void loadRecommendations();
-
     return () => {
       isActive = false;
     };
-  }, [token]);
+  }, [token, intentMode]);
 
   function goNext() {
     setFeedError(null);
@@ -79,38 +79,23 @@ export default function FeedScreen(_props: FeedScreenProps) {
     setCurrentIndex((current) => current + 1);
   }
 
-  async function handlePass() {
-    await submitFeedAction("pass");
-  }
-
-  async function handleLike() {
-    await submitFeedAction("like");
-  }
-
-  function handleSuperLike() {
-    goNext();
-  }
-
-  async function submitFeedAction(action: Exclude<FeedAction, "superLike">) {
+  async function submitFeedAction(action: FeedAction) {
     if (loadingAction || !currentUser) {
       return;
     }
-
-    if (!token || !currentUser.isApiBacked) {
-      goNext();
+    if (!token) {
+      setFeedError("Entre novamente para registrar esta ação.");
       return;
     }
 
     setLoadingAction(action);
     setFeedError(null);
-
     try {
       if (action === "like") {
         await likeProfile(currentUser.profileId, token);
       } else {
         await passProfile(currentUser.profileId, token);
       }
-
       goNext();
     } catch {
       setFeedError(
@@ -125,34 +110,41 @@ export default function FeedScreen(_props: FeedScreenProps) {
 
   return (
     <OrbitScreen>
-      <OrbitHeader title="Feed" subtitle="Compatibilidade em primeiro plano" />
+      <OrbitHeader title={feedContent.title} subtitle={feedContent.subtitle} />
       <View style={styles.stack}>
         {loading ? <SkeletonCard image lines={4} /> : null}
         <OrbitErrorMessage message={feedError} />
         {!loading && currentUser ? (
-          <UserRecommendationCard
-            user={currentUser}
-            expanded={expandedId === currentUser.id}
-            onPass={handlePass}
-            onLike={handleLike}
-            onSuperLike={handleSuperLike}
-            onViewProfile={() =>
-              setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
-            }
-            loadingAction={loadingAction}
-          />
+          <>
+            <Text style={styles.progress}>
+              {currentIndex + 1} de {recommendations.length} nesta seleção
+            </Text>
+            <UserRecommendationCard
+              user={currentUser}
+              viewerMode={intentMode}
+              expanded={expandedId === currentUser.id}
+              onPass={() => submitFeedAction("pass")}
+              onLike={() => submitFeedAction("like")}
+              onViewProfile={() =>
+                setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
+              }
+              loadingAction={loadingAction}
+            />
+          </>
         ) : null}
         {!loading && !currentUser ? (
           <OrbitEmptyState
             icon={feedError ? "cloud-offline-outline" : "heart-outline"}
-            title={recommendations.length > 0 ? "Você viu todos os perfis" : "Sem recomendações agora"}
+            title={
+              recommendations.length > 0
+                ? feedContent.completedTitle
+                : "Sem recomendações relevantes agora"
+            }
             description={
               recommendations.length > 0
-                ? "Reinicie a lista para rever as recomendações carregadas."
-                : "Quando houver perfis compatíveis com suas preferências, eles aparecerão aqui."
+                ? feedContent.completedDescription
+                : "O Orbit não completa a lista artificialmente. Novos perfis aparecem quando atingem os critérios do seu modo."
             }
-            actionLabel={recommendations.length > 0 ? "Reiniciar feed" : undefined}
-            onAction={recommendations.length > 0 ? () => setCurrentIndex(0) : undefined}
           />
         ) : null}
       </View>
@@ -160,8 +152,37 @@ export default function FeedScreen(_props: FeedScreenProps) {
   );
 }
 
+function getFeedContent(mode: IntentMode) {
+  if (mode === "SERIOUS") {
+    return {
+      title: "Sua curadoria",
+      subtitle: "Compatibilidade bilateral, futuro e comunicação",
+      completedTitle: "Curadoria concluída",
+      completedDescription: "Você avaliou todos os perfis relevantes disponíveis para este momento.",
+    };
+  }
+  if (mode === "EXPLORING") {
+    return {
+      title: "Pessoas para conhecer",
+      subtitle: "Interesses, afinidades e espaço para descobrir",
+      completedTitle: "Seleção concluída",
+      completedDescription: "Você conheceu as pessoas relevantes disponíveis nesta seleção.",
+    };
+  }
+  return {
+    title: "Explorar",
+    subtitle: "Afinidade leve, interesses e contexto local",
+    completedTitle: "Exploração concluída",
+    completedDescription: "Você avaliou os perfis relevantes disponíveis agora.",
+  };
+}
+
 const styles = StyleSheet.create({
-  stack: {
-    gap: theme.spacing.lg,
+  stack: { gap: theme.spacing.lg },
+  progress: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.small,
+    fontWeight: "500",
+    textAlign: "right",
   },
 });

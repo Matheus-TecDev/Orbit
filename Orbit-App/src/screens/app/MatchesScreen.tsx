@@ -95,11 +95,8 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
                   <Text style={styles.initial}>{match.name.charAt(0)}</Text>
                 </View>
                 <View style={styles.info}>
-                  <View style={styles.nameRow}>
-                    <Text style={styles.name}>{match.name}</Text>
-                    {match.isNew ? <Text style={styles.badge}>Novo match</Text> : null}
-                  </View>
-                  <Text style={styles.meta}>{match.compatibility}% de compatibilidade</Text>
+                  <Text style={styles.name}>{match.name}</Text>
+                  {match.city ? <Text style={styles.meta}>{match.city}</Text> : null}
                 </View>
                 <OrbitButton
                   compact
@@ -152,25 +149,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: theme.spacing.xs,
   },
-  nameRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: theme.spacing.sm,
-  },
   name: {
     color: theme.colors.text,
     fontSize: theme.typography.body,
-    fontWeight: "500",
-  },
-  badge: {
-    color: theme.colors.text,
-    backgroundColor: theme.colors.purple,
-    borderRadius: theme.radius.round,
-    overflow: "hidden",
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 3,
-    fontSize: theme.typography.tiny,
     fontWeight: "500",
   },
   meta: {

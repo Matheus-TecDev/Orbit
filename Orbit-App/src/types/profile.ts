@@ -1,4 +1,5 @@
-export type IntentKey = "serious" | "casual" | "exploring";
+export type IntentMode = "SERIOUS" | "EXPLORING" | "CASUAL";
+export type LegacyIntention = "serious" | "exploring" | "casual";
 
 export type GenderOption =
   | "Mulher"

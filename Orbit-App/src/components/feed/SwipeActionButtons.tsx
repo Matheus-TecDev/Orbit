@@ -3,26 +3,28 @@ import type { ComponentProps } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { theme } from "../../styles/theme";
+import type { IntentMode } from "../../types/profile";
 
 type SwipeActionButtonsProps = {
+  intentMode: IntentMode;
   onPass: () => void;
   onLike: () => void;
-  onSuperLike: () => void;
   loadingAction?: FeedAction | null;
 };
 
 export default function SwipeActionButtons({
+  intentMode,
   onPass,
   onLike,
-  onSuperLike,
   loadingAction = null,
 }: SwipeActionButtonsProps) {
   const isBusy = loadingAction !== null;
+  const labels = getActionLabels(intentMode);
 
   return (
     <View style={styles.wrap}>
       <ActionButton
-        label="Passar"
+        label={labels.pass}
         icon="close"
         tone="muted"
         onPress={onPass}
@@ -30,33 +32,33 @@ export default function SwipeActionButtons({
         disabled={isBusy}
       />
       <ActionButton
-        label="Curtir"
+        label={labels.like}
         icon="heart"
         tone="primary"
         onPress={onLike}
         loading={loadingAction === "like"}
         disabled={isBusy}
       />
-      <ActionButton
-        label="Super like"
-        icon="star"
-        tone="gold"
-        onPress={onSuperLike}
-        loading={loadingAction === "superLike"}
-        disabled={isBusy}
-      />
     </View>
   );
 }
 
-export type FeedAction = "pass" | "like" | "superLike";
+export type FeedAction = "pass" | "like";
 
-type ActionTone = "primary" | "muted" | "gold";
+function getActionLabels(intentMode: IntentMode) {
+  if (intentMode === "SERIOUS") {
+    return { pass: "Não é para mim", like: "Quero conhecer" };
+  }
+  if (intentMode === "EXPLORING") {
+    return { pass: "Agora não", like: "Quero conhecer" };
+  }
+  return { pass: "Passar", like: "Curtir" };
+}
 
 type ActionButtonProps = {
   label: string;
   icon: ComponentProps<typeof Ionicons>["name"];
-  tone: ActionTone;
+  tone: "primary" | "muted";
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
@@ -70,12 +72,7 @@ function ActionButton({
   loading = false,
   disabled = false,
 }: ActionButtonProps) {
-  const iconColor =
-    tone === "primary"
-      ? theme.colors.rose
-      : tone === "gold"
-        ? theme.colors.teal
-        : theme.colors.textSecondary;
+  const iconColor = tone === "primary" ? theme.colors.rose : theme.colors.textSecondary;
 
   return (
     <Pressable
@@ -84,24 +81,15 @@ function ActionButton({
       disabled={disabled}
       style={({ pressed }) => [
         styles.action,
-        tone === "primary" && styles.primary,
-        tone === "muted" && styles.muted,
-        tone === "gold" && styles.gold,
+        tone === "primary" ? styles.primary : styles.muted,
         disabled && styles.disabled,
         pressed && styles.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={iconColor}
-        />
+        <ActivityIndicator size="small" color={iconColor} />
       ) : (
-        <Ionicons
-          name={icon}
-          color={iconColor}
-          size={20}
-        />
+        <Ionicons name={icon} color={iconColor} size={20} />
       )}
       <Text numberOfLines={1} adjustsFontSizeToFit style={styles.label}>
         {label}
@@ -132,10 +120,6 @@ const styles = StyleSheet.create({
   },
   muted: {
     backgroundColor: "rgba(255,255,255,0.05)",
-  },
-  gold: {
-    backgroundColor: "rgba(45,212,191,0.12)",
-    borderColor: "rgba(45,212,191,0.30)",
   },
   disabled: {
     opacity: 0.58,

@@ -16,13 +16,19 @@ import {
   SkeletonCard,
 } from "../../components/ui";
 import { interestCategories } from "../../constants/interests";
-import { getIntentLabel } from "../../constants/options";
+import {
+  getIntentLabel,
+  getIntentMode,
+  intentModeLabels,
+  intentModeOptions,
+} from "../../constants/options";
 import { useAuth } from "../../contexts/AuthContext";
 import type { MyProfileScreenProps } from "../../navigation/types";
 import { getMyCompatibilityProfile } from "../../services/compatibilityService";
 import { updatePreference } from "../../services/preferenceService";
 import { updateProfile } from "../../services/profileService";
 import { theme } from "../../styles/theme";
+import type { IntentMode } from "../../types/profile";
 
 export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
   const { signOut, token, user, profile, preferences, isBootstrapping, loadCurrentUser } = useAuth();
@@ -33,14 +39,16 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
   const [compatibilityAnswers, setCompatibilityAnswers] = useState(0);
   const [bioDraft, setBioDraft] = useState(profile?.bio ?? "");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(profile?.interests ?? []);
-  const [savingSection, setSavingSection] = useState<"bio" | "interests" | null>(null);
+  const [selectedIntentMode, setSelectedIntentMode] = useState<IntentMode>(
+    getIntentMode(profile?.intent_mode ?? profile?.intention),
+  );
+  const [savingSection, setSavingSection] = useState<"intent" | "bio" | "interests" | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const displayName = profile?.display_name ?? user?.full_name ?? "Perfil Orbit";
   const displayInitial = displayName.charAt(0).toUpperCase();
   const displayAge = getAge(profile?.birth_date);
   const displayCity = profile?.city ?? "Cidade não informada";
-  const displayIntent = getIntentLabel(profile?.intention);
   const displayInterests =
     selectedInterests.length > 0
       ? selectedInterests
@@ -55,6 +63,7 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
   useEffect(() => {
     setBioDraft(profile?.bio ?? "");
     setSelectedInterests(profile?.interests ?? []);
+    setSelectedIntentMode(getIntentMode(profile?.intent_mode ?? profile?.intention));
   }, [profile]);
 
   useEffect(() => {
@@ -135,6 +144,25 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
     }
   }
 
+  async function saveIntentMode() {
+    if (!token) {
+      setSaveError("Entre novamente para salvar seu modo.");
+      return;
+    }
+
+    setSavingSection("intent");
+    setSaveError(null);
+    try {
+      await updateProfile({ intent_mode: selectedIntentMode }, token);
+      await loadCurrentUser();
+      setStatus("Modo atualizado. Sua próxima seleção seguirá esse objetivo.");
+    } catch {
+      setSaveError("Não foi possível atualizar o que você está buscando.");
+    } finally {
+      setSavingSection(null);
+    }
+  }
+
   async function saveInterests() {
     if (!token) {
       setSaveError("Entre novamente para salvar interesses.");
@@ -174,7 +202,6 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
               {displayAge ? `, ${displayAge}` : ""}
             </Text>
             <Text style={styles.meta}>{displayCity}</Text>
-            <Text style={styles.intent}>{displayIntent}</Text>
           </View>
         </OrbitCard>
 
@@ -184,6 +211,30 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
         />
 
         <OrbitErrorMessage message={saveError} />
+
+        <OrbitCard style={styles.sectionCard}>
+          <OrbitSectionTitle
+            title="O que estou buscando agora"
+            subtitle="O modo ajusta a curadoria e pode ser alterado sem apagar matches ou conversas."
+          />
+          <View style={styles.chips}>
+            {intentModeOptions.map((mode) => (
+              <OrbitChip
+                key={mode}
+                label={intentModeLabels[mode]}
+                selected={selectedIntentMode === mode}
+                onPress={() => setSelectedIntentMode(mode)}
+              />
+            ))}
+          </View>
+          <OrbitButton
+            compact
+            variant="secondary"
+            label={savingSection === "intent" ? "Salvando..." : "Salvar modo"}
+            loading={savingSection === "intent"}
+            onPress={saveIntentMode}
+          />
+        </OrbitCard>
 
         <OrbitCard style={styles.sectionCard}>
           <OrbitSectionTitle
@@ -382,6 +433,7 @@ type CompletionInput = {
     birth_date: string | null;
     city: string | null;
     intention: string | null;
+    intent_mode: IntentMode;
     photo_url: string | null;
     interests: string[];
   } | null;
@@ -400,7 +452,7 @@ function calculateProfileCompletion({
     { done: Boolean(profile?.display_name), suggestion: "Adicione seu nome público." },
     { done: Boolean(profile?.birth_date), suggestion: "Informe sua data de nascimento." },
     { done: Boolean(profile?.city), suggestion: "Informe sua cidade." },
-    { done: Boolean(profile?.intention), suggestion: "Escolha sua intenção." },
+    { done: Boolean(profile?.intent_mode), suggestion: "Escolha sua intenção." },
     {
       done: Boolean(profile?.interests && profile.interests.length >= 3),
       suggestion: "Adicione pelo menos 3 interesses.",
@@ -489,19 +541,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     fontWeight: "500",
-  },
-  intent: {
-    alignSelf: "flex-start",
-    color: theme.colors.text,
-    fontSize: theme.typography.tiny,
-    fontWeight: "500",
-    textTransform: "uppercase",
-    borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.purpleSoft,
-    borderWidth: 1,
-    borderColor: "rgba(124,92,252,0.25)",
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
   },
   sectionCard: {
     gap: theme.spacing.md,

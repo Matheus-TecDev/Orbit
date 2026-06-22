@@ -4,11 +4,12 @@ from datetime import date
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Date, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, Enum as SqlEnum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.core.intent_mode_config import IntentMode
 from app.models.base import TimestampMixin
 from app.models.interest import profile_interests
 
@@ -36,6 +37,12 @@ class Profile(TimestampMixin, Base):
     city: Mapped[str | None] = mapped_column(String(120), nullable=True)
     country: Mapped[str | None] = mapped_column(String(120), nullable=True)
     intention: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    intent_mode: Mapped[IntentMode] = mapped_column(
+        SqlEnum(IntentMode, name="intent_mode_enum"),
+        default=IntentMode.SERIOUS,
+        server_default=IntentMode.SERIOUS.value,
+        nullable=False,
+    )
     photo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

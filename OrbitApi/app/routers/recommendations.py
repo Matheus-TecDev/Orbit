@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -17,5 +17,6 @@ router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 def list_recommendations(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
+    limit: Annotated[int | None, Query(ge=1)] = None,
 ) -> list[RecommendationRead]:
-    return get_recommendations(db, current_user=current_user)
+    return get_recommendations(db, current_user=current_user, limit=limit)

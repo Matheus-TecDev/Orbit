@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.profile import Profile
+from app.core.intent_mode_config import legacy_intention_for_mode, mode_from_legacy_intention
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 from app.repositories.interest_repository import get_or_create_interests
 
@@ -24,18 +25,37 @@ def get_profile_by_user_id(db: Session, user_id: UUID) -> Profile | None:
     )
 
 
-def create_profile(db: Session, *, user_id: UUID, data: ProfileCreate) -> Profile:
+def create_profile(
+    db: Session,
+    *,
+    user_id: UUID,
+    data: ProfileCreate,
+    commit: bool = True,
+) -> Profile:
     payload = data.model_dump(exclude={"interests"})
     profile = Profile(user_id=user_id, **payload)
     profile.interests = get_or_create_interests(db, data.interests)
     db.add(profile)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(profile)
     return profile
 
 
-def update_profile(db: Session, *, profile: Profile, data: ProfileUpdate) -> Profile:
+def update_profile(
+    db: Session,
+    *,
+    profile: Profile,
+    data: ProfileUpdate,
+    commit: bool = True,
+) -> Profile:
     payload = data.model_dump(exclude_unset=True, exclude={"interests"})
+    if data.intent_mode is not None or data.intention is not None:
+        mode = data.intent_mode or mode_from_legacy_intention(data.intention)
+        payload["intent_mode"] = mode
+        payload["intention"] = legacy_intention_for_mode(mode)
     for field, value in payload.items():
         setattr(profile, field, value)
 
@@ -43,7 +63,10 @@ def update_profile(db: Session, *, profile: Profile, data: ProfileUpdate) -> Pro
         profile.interests = get_or_create_interests(db, data.interests)
 
     db.add(profile)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(profile)
     return profile
 

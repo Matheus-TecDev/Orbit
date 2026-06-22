@@ -13,10 +13,7 @@ export type ChatPreview = {
   name: string;
   lastMessage: string;
   time: string;
-  unread: boolean;
-  online: boolean;
   messages: ChatMessage[];
-  aiSuggestion: string;
   isApiBacked?: boolean;
 };
 
@@ -54,10 +51,7 @@ export function mapApiChatToChatPreview(chat: ApiChat, currentUserId: string): C
     name: "Conversa Orbit",
     lastMessage: chat.last_message ?? "Comece a conversa pelo Orbit.",
     time: formatChatTime(chat.updated_at),
-    unread: Boolean(chat.last_message),
-    online: true,
     messages: [],
-    aiSuggestion: "Use algo específico do match para começar a conversa.",
     isApiBacked: true,
   };
 }

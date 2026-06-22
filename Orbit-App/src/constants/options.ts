@@ -1,12 +1,18 @@
-import type { IntentKey } from "../types/profile";
+import type { IntentMode, LegacyIntention } from "../types/profile";
 
-export const intentLabels: Record<IntentKey, string> = {
-  serious: "Relacionamento sério",
-  casual: "Algo casual",
-  exploring: "Ainda estou descobrindo",
+export const intentModeLabels: Record<IntentMode, string> = {
+  SERIOUS: "Construir algo sério",
+  EXPLORING: "Ainda estou descobrindo",
+  CASUAL: "Algo casual",
 };
 
-export const intentOptions: IntentKey[] = ["serious", "casual", "exploring"];
+export const intentModeOptions: IntentMode[] = ["SERIOUS", "EXPLORING", "CASUAL"];
+
+export const legacyIntentionByMode: Record<IntentMode, LegacyIntention> = {
+  SERIOUS: "serious",
+  EXPLORING: "exploring",
+  CASUAL: "casual",
+};
 
 export const genderOptions = [
   "Mulher",
@@ -15,7 +21,7 @@ export const genderOptions = [
   "Prefiro não informar",
 ] as const;
 
-export const connectionOptions = intentOptions;
+export const connectionOptions = intentModeOptions;
 
 export const ageOptions = Array.from({ length: 68 }, (_, index) => String(index + 18));
 
@@ -37,11 +43,13 @@ export function getDistanceLabel(distance: string) {
 }
 
 export function getIntentLabel(intent: string | null | undefined) {
-  const normalized = intent?.trim().toLowerCase();
+  return intentModeLabels[getIntentMode(intent)];
+}
 
-  if (normalized === "serious" || normalized === "casual" || normalized === "exploring") {
-    return intentLabels[normalized];
+export function getIntentMode(intent: string | null | undefined): IntentMode {
+  const normalized = intent?.trim().toUpperCase();
+  if (normalized === "SERIOUS" || normalized === "EXPLORING" || normalized === "CASUAL") {
+    return normalized;
   }
-
-  return intentLabels.exploring;
+  return "SERIOUS";
 }

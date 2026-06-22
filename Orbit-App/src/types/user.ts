@@ -1,15 +1,14 @@
-import type { IntentKey } from "./profile";
+import type { IntentMode } from "./profile";
 
 export type OrbitUser = {
   id: string;
   name: string;
   age: number;
   city: string;
-  intent: IntentKey;
+  intentMode: IntentMode;
   bio: string;
   interests: string[];
   photoColor: string;
-  distanceKm: number;
 };
 
 export type CurrentUser = {
@@ -17,7 +16,7 @@ export type CurrentUser = {
   name: string;
   age: number;
   city: string;
-  intent: IntentKey;
+  intentMode: IntentMode;
   bio: string;
   interests: string[];
   profileProgress: number;

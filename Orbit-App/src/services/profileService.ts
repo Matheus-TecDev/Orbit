@@ -1,4 +1,5 @@
 import { apiRequest } from "./apiClient";
+import type { IntentMode, LegacyIntention } from "../types/profile";
 
 export type ProfilePayload = {
   display_name: string;
@@ -7,7 +8,8 @@ export type ProfilePayload = {
   gender?: string | null;
   city?: string | null;
   country?: string | null;
-  intention?: string | null;
+  intention?: LegacyIntention | null;
+  intent_mode?: IntentMode | null;
   photo_url?: string | null;
   is_visible?: boolean;
   interests?: string[];
@@ -23,6 +25,7 @@ export type ProfileRead = {
   city: string | null;
   country: string | null;
   intention: string | null;
+  intent_mode: IntentMode;
   photo_url: string | null;
   is_visible: boolean;
   interests: string[];

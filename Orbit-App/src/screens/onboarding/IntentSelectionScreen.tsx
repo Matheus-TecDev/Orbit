@@ -3,20 +3,20 @@ import { StyleSheet, Text, View } from "react-native";
 
 import IntentCard from "../../components/onboarding/IntentCard";
 import { OrbitButton, OrbitHeader, OrbitProgressBar, OrbitScreen } from "../../components/ui";
-import { intentOptions } from "../../constants/options";
+import { intentModeOptions } from "../../constants/options";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import type { IntentSelectionScreenProps } from "../../navigation/types";
 import { theme } from "../../styles/theme";
-import type { IntentKey } from "../../types/profile";
+import type { IntentMode } from "../../types/profile";
 
 export default function IntentSelectionScreen({
   navigation,
 }: IntentSelectionScreenProps) {
-  const { intent, setIntent } = useOnboarding();
-  const [selectedIntent, setSelectedIntent] = useState<IntentKey>(intent);
+  const { intentMode, setIntentMode } = useOnboarding();
+  const [selectedIntent, setSelectedIntent] = useState<IntentMode>(intentMode);
 
   function continueToInterests() {
-    setIntent(selectedIntent);
+    setIntentMode(selectedIntent);
     navigation.navigate("Interests");
   }
 
@@ -27,13 +27,13 @@ export default function IntentSelectionScreen({
 
       <View style={styles.stack}>
         <View style={styles.copy}>
-          <Text style={styles.title}>A intenção guia suas recomendações.</Text>
+          <Text style={styles.title}>O Orbit se adapta ao seu momento.</Text>
           <Text style={styles.subtitle}>
-            Você pode mudar isso depois. O Orbit usa essa escolha para alinhar expectativas.
+            Todos os modos são para relacionamentos. Sua escolha ajusta a curadoria, os critérios e o volume de pessoas apresentadas.
           </Text>
         </View>
 
-        {intentOptions.map((intent) => (
+        {intentModeOptions.map((intent) => (
           <IntentCard
             key={intent}
             intent={intent}

@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 import BottomTabIcon from "../components/layout/BottomTabIcon";
 import ChatListScreen from "../screens/app/ChatListScreen";
-import ExploreScreen from "../screens/app/ExploreScreen";
 import FeedScreen from "../screens/app/FeedScreen";
 import MatchesScreen from "../screens/app/MatchesScreen";
 import MyProfileScreen from "../screens/app/MyProfileScreen";
@@ -17,7 +16,6 @@ const Tab = createBottomTabNavigator<AppTabParamList>();
 
 const tabIcons: Record<AppTabParamListKeys, { active: IconName; inactive: IconName }> = {
   Feed: { active: "planet", inactive: "planet-outline" },
-  Explore: { active: "compass", inactive: "compass-outline" },
   Matches: { active: "heart", inactive: "heart-outline" },
   ChatList: { active: "chatbubbles", inactive: "chatbubbles-outline" },
   MyProfile: { active: "person", inactive: "person-outline" },
@@ -63,8 +61,7 @@ export default function AppTabsNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Feed" component={FeedScreen} options={{ title: "Feed" }} />
-      <Tab.Screen name="Explore" component={ExploreScreen} options={{ title: "Explorar" }} />
+      <Tab.Screen name="Feed" component={FeedScreen} options={{ title: "Descobrir" }} />
       <Tab.Screen name="Matches" component={MatchesScreen} options={{ title: "Matches" }} />
       <Tab.Screen
         name="ChatList"

@@ -7,12 +7,15 @@ from app.core.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.repositories.preference_repository import (
-    create_preference,
     get_preference_by_user_id,
     update_preference,
 )
 from app.schemas.mappers import preference_to_read
 from app.schemas.preference import PreferenceCreate, PreferenceRead, PreferenceUpdate
+from app.services.intent_mode_service import (
+    create_preference_with_intent_sync,
+    update_preference_with_intent_sync,
+)
 
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
@@ -26,7 +29,11 @@ def create_current_preference(
 ) -> PreferenceRead:
     if get_preference_by_user_id(db, current_user.id):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Preferences already exist")
-    preference = create_preference(db, user_id=current_user.id, data=payload)
+    preference = create_preference_with_intent_sync(
+        db,
+        user_id=current_user.id,
+        data=payload,
+    )
     return preference_to_read(preference)
 
 
@@ -59,5 +66,9 @@ def patch_current_preference(
             detail="max_age must be greater than or equal to min_age",
         )
 
-    updated_preference = update_preference(db, preference=preference, data=payload)
+    updated_preference = (
+        update_preference_with_intent_sync(db, preference=preference, data=payload)
+        if "intention" in payload.model_fields_set
+        else update_preference(db, preference=preference, data=payload)
+    )
     return preference_to_read(updated_preference)

@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
+from app.core.intent_mode_config import mode_from_legacy_intention
 from app.core.security import get_password_hash, verify_password
 from app.models.message import Message
 from app.models.profile import Profile
@@ -608,7 +609,10 @@ def upsert_user(db: Session, item: UserSeed, *, password: str) -> User:
 
 
 def upsert_profile(db: Session, user: User, data: ProfileSeed) -> Profile:
-    payload = ProfileCreate(**data)
+    payload = ProfileCreate(
+        **data,
+        intent_mode=mode_from_legacy_intention(data["intention"]),
+    )
     profile = get_profile_by_user_id(db, user.id)
 
     if profile is None:

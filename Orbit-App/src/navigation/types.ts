@@ -30,7 +30,6 @@ export type OnboardingStackParamList = {
 
 export type AppTabParamList = {
   Feed: undefined;
-  Explore: undefined;
   Matches: undefined;
   ChatList: undefined;
   MyProfile: undefined;
@@ -99,7 +98,6 @@ export type PhotoUploadScreenProps = NativeStackScreenProps<
 >;
 
 export type FeedScreenProps = BottomTabScreenProps<AppTabParamList, "Feed">;
-export type ExploreScreenProps = BottomTabScreenProps<AppTabParamList, "Explore">;
 export type MatchesScreenProps = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, "Matches">,
   NativeStackScreenProps<AppStackParamList>

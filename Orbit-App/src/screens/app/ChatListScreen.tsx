@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -95,10 +94,9 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                 onPress={() => navigation.navigate("Chat", { chatId: chat.id })}
                 style={({ pressed }) => pressed && styles.pressed}
               >
-                <OrbitCard elevated={chat.unread} style={styles.chatCard}>
+                <OrbitCard style={styles.chatCard}>
                   <View style={styles.avatar}>
                     <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
-                    {chat.online ? <View style={styles.online} /> : null}
                   </View>
                   <View style={styles.info}>
                     <View style={styles.nameRow}>
@@ -109,9 +107,6 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                       {chat.lastMessage}
                     </Text>
                   </View>
-                  {chat.unread ? (
-                    <Ionicons name="ellipse" color={theme.colors.purple} size={11} />
-                  ) : null}
                 </OrbitCard>
               </Pressable>
             ))
@@ -149,17 +144,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.subheading,
     fontWeight: "500",
-  },
-  online: {
-    position: "absolute",
-    right: 2,
-    bottom: 2,
-    width: 13,
-    height: 13,
-    borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.success,
-    borderWidth: 2,
-    borderColor: theme.colors.background,
   },
   info: {
     flex: 1,

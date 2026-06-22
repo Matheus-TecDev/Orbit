@@ -1,4 +1,5 @@
 import { apiRequest } from "./apiClient";
+import type { LegacyIntention } from "../types/profile";
 
 export type PreferencePayload = {
   min_age?: number;
@@ -7,7 +8,7 @@ export type PreferencePayload = {
   city?: string | null;
   gender?: string | null;
   preferred_genders?: string[];
-  intention?: string | null;
+  intention?: LegacyIntention | null;
   interests?: string[];
 };
 

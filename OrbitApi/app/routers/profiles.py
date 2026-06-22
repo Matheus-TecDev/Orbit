@@ -6,9 +6,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.repositories.profile_repository import create_profile, get_profile_by_user_id, update_profile
+from app.repositories.profile_repository import get_profile_by_user_id, update_profile
 from app.schemas.mappers import profile_to_read
 from app.schemas.profile import ProfileCreate, ProfileRead, ProfileUpdate
+from app.services.intent_mode_service import (
+    create_profile_with_intent_sync,
+    update_profile_with_intent_sync,
+)
 
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
@@ -22,7 +26,7 @@ def create_current_profile(
 ) -> ProfileRead:
     if get_profile_by_user_id(db, current_user.id):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Profile already exists")
-    profile = create_profile(db, user_id=current_user.id, data=payload)
+    profile = create_profile_with_intent_sync(db, user_id=current_user.id, data=payload)
     return profile_to_read(profile)
 
 
@@ -46,5 +50,10 @@ def patch_current_profile(
     profile = get_profile_by_user_id(db, current_user.id)
     if profile is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
-    updated_profile = update_profile(db, profile=profile, data=payload)
+    intent_was_sent = bool({"intent_mode", "intention"} & payload.model_fields_set)
+    updated_profile = (
+        update_profile_with_intent_sync(db, profile=profile, data=payload)
+        if intent_was_sent
+        else update_profile(db, profile=profile, data=payload)
+    )
     return profile_to_read(updated_profile)

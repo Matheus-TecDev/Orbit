@@ -16,17 +16,44 @@ def get_preference_by_user_id(db: Session, user_id: UUID) -> Preference | None:
     )
 
 
-def create_preference(db: Session, *, user_id: UUID, data: PreferenceCreate) -> Preference:
+def list_preferences_by_user_ids(db: Session, user_ids: list[UUID]) -> list[Preference]:
+    if not user_ids:
+        return []
+    return list(
+        db.scalars(
+            select(Preference)
+            .where(Preference.user_id.in_(user_ids))
+            .options(selectinload(Preference.interests))
+        )
+    )
+
+
+def create_preference(
+    db: Session,
+    *,
+    user_id: UUID,
+    data: PreferenceCreate,
+    commit: bool = True,
+) -> Preference:
     payload = data.model_dump(exclude={"interests"})
     preference = Preference(user_id=user_id, **payload)
     preference.interests = get_or_create_interests(db, data.interests)
     db.add(preference)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(preference)
     return preference
 
 
-def update_preference(db: Session, *, preference: Preference, data: PreferenceUpdate) -> Preference:
+def update_preference(
+    db: Session,
+    *,
+    preference: Preference,
+    data: PreferenceUpdate,
+    commit: bool = True,
+) -> Preference:
     payload = data.model_dump(exclude_unset=True, exclude={"interests"})
     for field, value in payload.items():
         setattr(preference, field, value)
@@ -35,6 +62,9 @@ def update_preference(db: Session, *, preference: Preference, data: PreferenceUp
         preference.interests = get_or_create_interests(db, data.interests)
 
     db.add(preference)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(preference)
     return preference

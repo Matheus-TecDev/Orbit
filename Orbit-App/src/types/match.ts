@@ -17,9 +17,7 @@ export type MatchListItem = {
   city: string | null;
   status: string;
   chatId: string | null;
-  compatibility: number;
   photoColor: string;
-  isNew: boolean;
 };
 
 const fallbackColors = ["#7C5CFC", "#5B7FFF", "#2DD4BF", "#E85B7A"] as const;
@@ -36,20 +34,8 @@ export function mapApiMatchToListItem(
     city: match.target_profile.city,
     status: match.status,
     chatId: match.chat_id,
-    compatibility: getCompatibilityFromStatus(match.status),
     photoColor: fallbackColors[index % fallbackColors.length],
-    isNew: index === 0,
   };
-}
-
-function getCompatibilityFromStatus(status: string) {
-  const normalized = status.toLowerCase();
-
-  if (normalized.includes("match")) {
-    return 100;
-  }
-
-  return 87;
 }
 
 function getAge(birthDate: string | null) {

@@ -1,20 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { intentLabels } from "../../constants/options";
+import { intentModeLabels } from "../../constants/options";
 import { theme } from "../../styles/theme";
-import type { IntentKey } from "../../types/profile";
+import type { IntentMode } from "../../types/profile";
 
 type IntentCardProps = {
-  intent: IntentKey;
+  intent: IntentMode;
   selected: boolean;
   onPress: () => void;
 };
 
-const intentDescriptions: Record<IntentKey, string> = {
-  serious: "Quero construir algo com intenção e continuidade.",
-  casual: "Quero conhecer pessoas sem pressionar o ritmo.",
-  exploring: "Ainda estou entendendo o que combina comigo.",
+const intentDescriptions: Record<IntentMode, string> = {
+  SERIOUS: "Quero construir uma relação com intenção e continuidade.",
+  EXPLORING: "Estou aberto a conhecer pessoas e descobrir o que procuro.",
+  CASUAL: "Quero algo leve ou sem compromisso neste momento.",
 };
 
 export default function IntentCard({ intent, selected, onPress }: IntentCardProps) {
@@ -36,7 +36,7 @@ export default function IntentCard({ intent, selected, onPress }: IntentCardProp
         />
       </View>
       <View style={styles.copy}>
-        <Text style={styles.title}>{intentLabels[intent]}</Text>
+        <Text style={styles.title}>{intentModeLabels[intent]}</Text>
         <Text style={styles.description}>{intentDescriptions[intent]}</Text>
       </View>
     </Pressable>
