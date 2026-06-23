@@ -38,6 +38,12 @@ export type AppTabParamList = {
 export type AppStackParamList = {
   AppTabs: NavigatorScreenParams<AppTabParamList> | undefined;
   Chat: { chatId: string };
+  ProfilePersonalData: undefined;
+  ProfileIntent: undefined;
+  ProfileInterests: undefined;
+  ProfileCompatibility: undefined;
+  ProfilePreferences: undefined;
+  ProfilePrivacySecurity: undefined;
   CompatibilitySettings: undefined;
   LegalTerms: undefined;
   PrivacyPolicy: undefined;
@@ -111,6 +117,30 @@ export type MyProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<AppStackParamList>
 >;
 export type ChatScreenProps = NativeStackScreenProps<AppStackParamList, "Chat">;
+export type ProfilePersonalDataScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfilePersonalData"
+>;
+export type ProfileIntentScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfileIntent"
+>;
+export type ProfileInterestsScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfileInterests"
+>;
+export type ProfileCompatibilityScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfileCompatibility"
+>;
+export type ProfilePreferencesScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfilePreferences"
+>;
+export type ProfilePrivacySecurityScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "ProfilePrivacySecurity"
+>;
 export type CompatibilitySettingsScreenProps = NativeStackScreenProps<
   AppStackParamList,
   "CompatibilitySettings"

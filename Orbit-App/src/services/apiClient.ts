@@ -142,7 +142,7 @@ function readDetail(data: unknown): string | null {
     const messages = detail
       .map((item) => {
         if (isRecord(item) && typeof item.msg === "string") {
-          return item.msg;
+          return cleanValidationMessage(item.msg);
         }
 
         return null;
@@ -153,6 +153,10 @@ function readDetail(data: unknown): string | null {
   }
 
   return null;
+}
+
+function cleanValidationMessage(message: string) {
+  return message.replace(/^Value error,\s*/i, "").trim();
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

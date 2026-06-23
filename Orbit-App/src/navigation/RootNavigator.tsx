@@ -5,10 +5,17 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { OrbitCard, OrbitScreen } from "../components/ui";
 import ChatScreen from "../screens/app/ChatScreen";
+import ProfileCompatibilityScreen from "../screens/profile/ProfileCompatibilityScreen";
+import ProfileIntentScreen from "../screens/profile/ProfileIntentScreen";
+import ProfileInterestsScreen from "../screens/profile/ProfileInterestsScreen";
+import ProfilePersonalDataScreen from "../screens/profile/ProfilePersonalDataScreen";
+import ProfilePreferencesScreen from "../screens/profile/ProfilePreferencesScreen";
+import ProfilePrivacySecurityScreen from "../screens/profile/ProfilePrivacySecurityScreen";
 import CompatibilitySettingsScreen from "../screens/settings/CompatibilitySettingsScreen";
 import LegalTermsScreen from "../screens/settings/LegalTermsScreen";
 import PrivacyPolicyScreen from "../screens/settings/PrivacyPolicyScreen";
@@ -37,6 +44,12 @@ function AppStackNavigator() {
     <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="AppTabs" component={AppTabsNavigator} />
       <AppStack.Screen name="Chat" component={ChatScreen} />
+      <AppStack.Screen name="ProfilePersonalData" component={ProfilePersonalDataScreen} />
+      <AppStack.Screen name="ProfileIntent" component={ProfileIntentScreen} />
+      <AppStack.Screen name="ProfileInterests" component={ProfileInterestsScreen} />
+      <AppStack.Screen name="ProfileCompatibility" component={ProfileCompatibilityScreen} />
+      <AppStack.Screen name="ProfilePreferences" component={ProfilePreferencesScreen} />
+      <AppStack.Screen name="ProfilePrivacySecurity" component={ProfilePrivacySecurityScreen} />
       <AppStack.Screen name="CompatibilitySettings" component={CompatibilitySettingsScreen} />
       <AppStack.Screen name="LegalTerms" component={LegalTermsScreen} />
       <AppStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
@@ -72,13 +85,18 @@ function BootstrapLoading() {
 
 export default function RootNavigator() {
   return (
-    <AuthProvider>
-      <NavigationTree />
-    </AuthProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <AuthProvider>
+        <NavigationTree />
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   loadingWrap: {
     flex: 1,
     alignItems: "center",

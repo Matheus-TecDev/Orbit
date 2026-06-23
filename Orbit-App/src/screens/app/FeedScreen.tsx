@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import UserRecommendationCard from "../../components/feed/UserRecommendationCard";
+import SwipeableRecommendationCard from "../../components/feed/SwipeableRecommendationCard";
 import type { FeedAction } from "../../components/feed/SwipeActionButtons";
 import {
   OrbitEmptyState,
@@ -79,13 +80,13 @@ export default function FeedScreen(_props: FeedScreenProps) {
     setCurrentIndex((current) => current + 1);
   }
 
-  async function submitFeedAction(action: FeedAction) {
+  async function submitFeedAction(action: FeedAction): Promise<boolean> {
     if (loadingAction || !currentUser) {
-      return;
+      return false;
     }
     if (!token) {
       setFeedError("Entre novamente para registrar esta ação.");
-      return;
+      return false;
     }
 
     setLoadingAction(action);
@@ -97,12 +98,14 @@ export default function FeedScreen(_props: FeedScreenProps) {
         await passProfile(currentUser.profileId, token);
       }
       goNext();
+      return true;
     } catch {
       setFeedError(
         action === "like"
           ? "Não foi possível curtir este perfil. Tente novamente."
           : "Não foi possível passar este perfil. Tente novamente.",
       );
+      return false;
     } finally {
       setLoadingAction(null);
     }
@@ -119,17 +122,27 @@ export default function FeedScreen(_props: FeedScreenProps) {
             <Text style={styles.progress}>
               {currentIndex + 1} de {recommendations.length} nesta seleção
             </Text>
-            <UserRecommendationCard
-              user={currentUser}
-              viewerMode={intentMode}
-              expanded={expandedId === currentUser.id}
-              onPass={() => submitFeedAction("pass")}
-              onLike={() => submitFeedAction("like")}
-              onViewProfile={() =>
-                setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
-              }
-              loadingAction={loadingAction}
-            />
+            <SwipeableRecommendationCard
+              key={currentUser.id}
+              disabled={loadingAction !== null}
+              onSwipe={submitFeedAction}
+            >
+              <UserRecommendationCard
+                user={currentUser}
+                viewerMode={intentMode}
+                expanded={expandedId === currentUser.id}
+                onPass={() => {
+                  void submitFeedAction("pass");
+                }}
+                onLike={() => {
+                  void submitFeedAction("like");
+                }}
+                onViewProfile={() =>
+                  setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
+                }
+                loadingAction={loadingAction}
+              />
+            </SwipeableRecommendationCard>
           </>
         ) : null}
         {!loading && !currentUser ? (

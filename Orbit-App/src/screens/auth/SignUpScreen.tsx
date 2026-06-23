@@ -22,13 +22,29 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const normalizedEmail = email.trim().toLowerCase();
+  const passwordError = password.length > 0 ? getPasswordValidationError(password) : null;
+  const confirmationError =
+    confirmPassword.length > 0 && password !== confirmPassword
+      ? "As senhas precisam ser iguais."
+      : null;
+  const emailError =
+    email.length > 0 && !isValidEmail(normalizedEmail)
+      ? "Informe um e-mail válido."
+      : null;
+  const nameError =
+    name.length > 0 && name.trim().length < 2
+      ? "O nome precisa ter pelo menos 2 caracteres."
+      : null;
 
   const canSubmit =
     accepted &&
-    name.trim().length > 0 &&
-    email.trim().length > 0 &&
+    name.trim().length >= 2 &&
+    isValidEmail(normalizedEmail) &&
     password.length > 0 &&
-    confirmPassword.length > 0;
+    passwordError === null &&
+    confirmPassword.length > 0 &&
+    confirmationError === null;
 
   function clearMessages() {
     setLocalError(null);
@@ -36,12 +52,21 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   }
 
   async function handleSignUp() {
-    if (password !== confirmPassword) {
-      setLocalError("As senhas precisam ser iguais.");
+    if (name.trim().length < 2) {
+      setLocalError("O nome precisa ter pelo menos 2 caracteres.");
       return;
     }
 
-    const passwordError = getPasswordValidationError(password);
+    if (!isValidEmail(normalizedEmail)) {
+      setLocalError("Informe um e-mail válido.");
+      return;
+    }
+
+    if (confirmationError) {
+      setLocalError(confirmationError);
+      return;
+    }
+
     if (passwordError) {
       setLocalError(passwordError);
       return;
@@ -49,7 +74,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
 
     setLocalError(null);
     await signUp({
-      email: email.trim(),
+      email: normalizedEmail,
       password,
       full_name: name.trim(),
     });
@@ -110,7 +135,9 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           <Text style={styles.checkText}>Aceito os termos e a política de privacidade.</Text>
         </Pressable>
 
-        <OrbitErrorMessage message={localError ?? error} />
+        <OrbitErrorMessage
+          message={localError ?? nameError ?? emailError ?? confirmationError ?? passwordError ?? error}
+        />
 
         <OrbitButton
           label={loading ? "Criando conta..." : "Criar conta"}
@@ -153,3 +180,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 });
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}

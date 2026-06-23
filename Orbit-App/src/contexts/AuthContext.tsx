@@ -451,7 +451,7 @@ function toFriendlyMessage(error: ApiRequestError) {
   }
 
   if (error.status === 422) {
-    return "Confira os dados informados e tente novamente.";
+    return error.message || "Confira os dados informados e tente novamente.";
   }
 
   return error.message;

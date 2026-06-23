@@ -20,7 +20,7 @@ export default function OrbitChip({ label, selected = false, onPress }: OrbitChi
         pressed && styles.pressed,
       ]}
     >
-      <Text numberOfLines={1} style={[styles.text, selected && styles.selectedText]}>
+      <Text style={[styles.text, selected && styles.selectedText]}>
         {label}
       </Text>
     </Pressable>
@@ -30,11 +30,13 @@ export default function OrbitChip({ label, selected = false, onPress }: OrbitChi
 const styles = StyleSheet.create({
   chip: {
     minHeight: 36,
+    maxWidth: "100%",
     borderRadius: theme.radius.sm,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
     backgroundColor: "rgba(255,255,255,0.05)",
     paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -49,6 +51,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     fontWeight: "400",
+    lineHeight: 18,
+    textAlign: "center",
+    flexShrink: 1,
   },
   selectedText: {
     color: theme.colors.purpleLight,
