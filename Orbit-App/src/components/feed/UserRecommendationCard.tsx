@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import CompatibilitySummaryCard from "../compatibility/CompatibilitySummaryCard";
 import { intentModeLabels } from "../../constants/options";
 import { theme } from "../../styles/theme";
 import type { IntentMode } from "../../types/profile";
@@ -10,7 +11,6 @@ import { resolveMediaUrl } from "../../utils/mediaUrl";
 import OrbitCard from "../ui/OrbitCard";
 import OrbitChip from "../ui/OrbitChip";
 import CompatibilityBadge from "./CompatibilityBadge";
-import RecommendationReasonList from "./RecommendationReasonList";
 import SwipeActionButtons, { type FeedAction } from "./SwipeActionButtons";
 
 type UserRecommendationCardProps = {
@@ -126,7 +126,16 @@ export default function UserRecommendationCard({
 
           {expanded ? (
             <View style={styles.explainBox}>
-              <RecommendationReasonList reasons={user.reasons} />
+              <CompatibilitySummaryCard
+                compact
+                compatibility={{
+                  mutualScore: user.mutualScore,
+                  coveragePercentage: user.coveragePercentage,
+                  scoreBreakdown: user.scoreBreakdown,
+                  reasonGroups: user.reasonGroups,
+                  commonInterests: user.commonInterests,
+                }}
+              />
               <Text style={styles.notice}>
                 O resultado considera os dois lados da conexão. Temas sensíveis influenciam o cálculo sem expor respostas pessoais.
               </Text>

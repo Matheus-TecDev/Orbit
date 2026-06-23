@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
-import RecommendationReasonList from "../../components/feed/RecommendationReasonList";
+import CompatibilitySummaryCard from "../../components/compatibility/CompatibilitySummaryCard";
 import {
   OrbitButton,
   OrbitCard,
@@ -255,62 +255,23 @@ function ProfileSection({ title, children }: { title: string; children: ReactNod
 }
 
 function CompatibilitySection({ profile }: { profile: PublicProfileRead }) {
-  const compatibility = profile.compatibility;
-  if (!compatibility) {
-    return (
-      <ProfileSection title="Compatibilidade">
-        <Text style={styles.mutedText}>Compatibilidade nÃ£o disponÃ­vel neste contexto.</Text>
-      </ProfileSection>
-    );
-  }
-
-  const breakdownItems = compatibility.score_breakdown
-    ? [
-        ["Modo", compatibility.score_breakdown.mode_alignment.score_a_to_b],
-        ["PreferÃªncias", compatibility.score_breakdown.objective_preferences.score_a_to_b],
-        ["Respostas", compatibility.score_breakdown.compatibility_answers.score_a_to_b],
-        ["Prioridades", compatibility.score_breakdown.priorities.score_a_to_b],
-      ].filter((item): item is [string, number] => typeof item[1] === "number")
-    : [];
-
   return (
-    <ProfileSection title="Compatibilidade">
-      <View style={styles.scoreRow}>
-        <View style={styles.scoreBadge}>
-          <Text style={styles.scoreValue}>{compatibility.mutual_score}%</Text>
-        </View>
-        <View style={styles.scoreCopy}>
-          <Text style={styles.bodyText}>Compatibilidade bilateral</Text>
-          <Text style={styles.mutedText}>
-            {compatibility.coverage_percentage}% de cobertura dos sinais disponÃ­veis
-          </Text>
-        </View>
-      </View>
-      {compatibility.common_interests.length > 0 ? (
-        <View style={styles.chips}>
-          {compatibility.common_interests.map((interest) => (
-            <OrbitChip key={interest} label={interest} selected />
-          ))}
-        </View>
-      ) : null}
-      {breakdownItems.length > 0 ? (
-        <View style={styles.breakdown}>
-          {breakdownItems.map(([label, value]) => (
-            <View key={label} style={styles.breakdownItem}>
-              <Text style={styles.breakdownLabel}>{label}</Text>
-              <Text style={styles.breakdownValue}>{value}%</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-      {compatibility.reason_groups.length > 0 ? (
-        <RecommendationReasonList
-          reasons={compatibility.reason_groups.flatMap((group) => group.reasons)}
-        />
-      ) : null}
-    </ProfileSection>
+    <CompatibilitySummaryCard
+      compatibility={
+        profile.compatibility
+          ? {
+              mutualScore: profile.compatibility.mutual_score,
+              coveragePercentage: profile.compatibility.coverage_percentage,
+              scoreBreakdown: profile.compatibility.score_breakdown,
+              reasonGroups: profile.compatibility.reason_groups,
+              commonInterests: profile.compatibility.common_interests,
+            }
+          : null
+      }
+    />
   );
 }
+
 
 type ActionSectionProps = {
   source: "feed" | "match" | "chat";
