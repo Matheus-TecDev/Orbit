@@ -117,7 +117,7 @@ export function calculateProfileCompletion({
       suggestion: "Adicione pelo menos 3 interesses.",
     },
     { done: Boolean(profile?.bio), suggestion: "Escreva uma bio curta." },
-    { done: Boolean(profile?.photo_url), suggestion: "Adicione fotos quando o upload estiver disponível." },
+    { done: Boolean(profile?.photo_url), suggestion: "Adicione uma foto real ao seu perfil." },
     { done: Boolean(preferences), suggestion: "Complete suas preferências." },
     {
       done: Boolean(compatibilityProgress && compatibilityProgress >= 50),

@@ -19,6 +19,7 @@ import { getMatchList, unmatchMatch } from "../../services/matchService";
 import { blockUser, reportUser } from "../../services/safetyService";
 import { theme } from "../../styles/theme";
 import type { MatchListItem } from "../../types/match";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function MatchesScreen({ navigation }: MatchesScreenProps) {
   const { token } = useAuth();
@@ -101,78 +102,29 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
         ) : null}
         {!loading
           ? matches.map((match, index) => (
-              <OrbitCard key={match.id} elevated={index === 0} style={styles.matchCard}>
-                <View style={styles.matchMain}>
-                  <View style={[styles.avatar, { backgroundColor: match.photoColor }]}>
-                    {match.photoUrl ? (
-                      <Image source={{ uri: match.photoUrl }} style={styles.avatarImage} />
-                    ) : (
-                      <Text style={styles.initial}>{match.name.charAt(0)}</Text>
-                    )}
-                  </View>
-                  <View style={styles.info}>
-                    <Text numberOfLines={1} style={styles.name}>
-                      {match.name}
-                    </Text>
-                    <Text style={styles.meta}>{buildMatchMeta(match)}</Text>
-                    {match.shortBio ? (
-                      <Text numberOfLines={2} style={styles.bio}>
-                        {match.shortBio}
-                      </Text>
-                    ) : null}
-                    {match.interests.length > 0 ? (
-                      <View style={styles.chips}>
-                        {match.interests.slice(0, 3).map((interest) => (
-                          <OrbitChip key={interest} label={interest} selected />
-                        ))}
-                      </View>
-                    ) : null}
-                  </View>
-                  <OrbitButton
-                    compact
-                    variant="secondary"
-                    label="Conversa"
-                    onPress={() => {
-                      if (match.chatId) {
-                        setChatError(null);
-                        navigation.navigate("Chat", {
-                          chatId: match.chatId,
-                          participantName: match.name,
-                          participantUserId: match.userId,
-                          matchId: match.id,
-                        });
-                        return;
-                      }
+              <MatchCard
+                key={match.id}
+                match={match}
+                elevated={index === 0}
+                actionLoading={actionLoading}
+                onOpenChat={() => {
+                  if (match.chatId) {
+                    setChatError(null);
+                    navigation.navigate("Chat", {
+                      chatId: match.chatId,
+                      participantName: match.name,
+                      participantUserId: match.userId,
+                      matchId: match.id,
+                    });
+                    return;
+                  }
 
-                      setChatError("Este match ainda não tem conversa disponível.");
-                    }}
-                    icon={<Ionicons name="chatbubble" color={theme.colors.text} size={16} />}
-                  />
-                </View>
-                <View style={styles.safetyActions}>
-                  <OrbitButton
-                    compact
-                    variant="ghost"
-                    label="Desfazer"
-                    disabled={actionLoading}
-                    onPress={() => setPendingAction({ type: "unmatch", match })}
-                  />
-                  <OrbitButton
-                    compact
-                    variant="ghost"
-                    label="Denunciar"
-                    disabled={actionLoading}
-                    onPress={() => setPendingAction({ type: "report", match })}
-                  />
-                  <OrbitButton
-                    compact
-                    variant="danger"
-                    label="Bloquear"
-                    disabled={actionLoading}
-                    onPress={() => setPendingAction({ type: "block", match })}
-                  />
-                </View>
-              </OrbitCard>
+                  setChatError("Este match ainda não tem conversa disponível.");
+                }}
+                onUnmatch={() => setPendingAction({ type: "unmatch", match })}
+                onReport={() => setPendingAction({ type: "report", match })}
+                onBlock={() => setPendingAction({ type: "block", match })}
+              />
             ))
           : null}
       </View>
@@ -225,6 +177,90 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
       setActionLoading(false);
     }
   }
+}
+
+type MatchCardProps = {
+  match: MatchListItem;
+  elevated: boolean;
+  actionLoading: boolean;
+  onOpenChat: () => void;
+  onUnmatch: () => void;
+  onReport: () => void;
+  onBlock: () => void;
+};
+
+function MatchCard({
+  match,
+  elevated,
+  actionLoading,
+  onOpenChat,
+  onUnmatch,
+  onReport,
+  onBlock,
+}: MatchCardProps) {
+  const photoUrl = resolveMediaUrl(match.photoUrl);
+
+  return (
+    <OrbitCard elevated={elevated} style={styles.matchCard}>
+      <View style={styles.matchMain}>
+        <View style={[styles.avatar, { backgroundColor: match.photoColor }]}>
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.initial}>{match.name.charAt(0)}</Text>
+          )}
+        </View>
+        <View style={styles.info}>
+          <Text numberOfLines={1} style={styles.name}>
+            {match.name}
+          </Text>
+          <Text style={styles.meta}>{buildMatchMeta(match)}</Text>
+          {match.shortBio ? (
+            <Text numberOfLines={2} style={styles.bio}>
+              {match.shortBio}
+            </Text>
+          ) : null}
+          {match.interests.length > 0 ? (
+            <View style={styles.chips}>
+              {match.interests.slice(0, 3).map((interest) => (
+                <OrbitChip key={interest} label={interest} selected />
+              ))}
+            </View>
+          ) : null}
+        </View>
+        <OrbitButton
+          compact
+          variant="secondary"
+          label="Conversa"
+          onPress={onOpenChat}
+          icon={<Ionicons name="chatbubble" color={theme.colors.text} size={16} />}
+        />
+      </View>
+      <View style={styles.safetyActions}>
+        <OrbitButton
+          compact
+          variant="ghost"
+          label="Desfazer"
+          disabled={actionLoading}
+          onPress={onUnmatch}
+        />
+        <OrbitButton
+          compact
+          variant="ghost"
+          label="Denunciar"
+          disabled={actionLoading}
+          onPress={onReport}
+        />
+        <OrbitButton
+          compact
+          variant="danger"
+          label="Bloquear"
+          disabled={actionLoading}
+          onPress={onBlock}
+        />
+      </View>
+    </OrbitCard>
+  );
 }
 
 type PendingSafetyAction = {

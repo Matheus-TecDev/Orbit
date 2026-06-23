@@ -30,6 +30,7 @@ class RecommendationRead(BaseModel):
     bio: str | None
     age: int | None
     city: str | None
+    photo_url: str | None
     intention: str | None
     intent_mode: IntentMode
     interests: list[str]

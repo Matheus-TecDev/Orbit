@@ -15,6 +15,13 @@ export type ApiRequestOptions = {
   headers?: Record<string, string>;
 };
 
+export type ApiFormRequestOptions = {
+  method?: Extract<HttpMethod, "POST" | "PUT" | "PATCH">;
+  body: FormData;
+  token?: string | null;
+  headers?: Record<string, string>;
+};
+
 export type UnauthorizedHandler = () => void | Promise<void>;
 
 let unauthorizedHandler: UnauthorizedHandler | null = null;
@@ -44,6 +51,34 @@ export async function apiRequest<TResponse>(
     method,
     headers: buildHeaders({ body, token, headers }),
     body: body === undefined ? undefined : JSON.stringify(body),
+  });
+
+  const data = await parseResponseBody(response);
+
+  if (!response.ok) {
+    if (shouldHandleUnauthorized(response.status, token)) {
+      await unauthorizedHandler?.();
+    }
+
+    throw new ApiRequestError({
+      status: response.status,
+      message: getErrorMessage(data, response.status),
+      details: data,
+    });
+  }
+
+  return data as TResponse;
+}
+
+export async function apiFormRequest<TResponse>(
+  path: string,
+  options: ApiFormRequestOptions,
+): Promise<TResponse> {
+  const { method = "POST", body, token, headers } = options;
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: buildHeaders({ body: undefined, token, headers }),
+    body,
   });
 
   const data = await parseResponseBody(response);

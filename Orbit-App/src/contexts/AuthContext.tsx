@@ -255,6 +255,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
+    if (!profilePayload.photo_url && !profile?.photo_url) {
+      setError("Adicione uma foto real para concluir seu perfil.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 import ProfileCompletionCard from "../../components/profile/ProfileCompletionCard";
 import ProfileShortcutCard from "../../components/profile/ProfileShortcutCard";
@@ -26,6 +26,7 @@ import {
   getProfileName,
   summarizeBio,
 } from "../../utils/profileSummary";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
   const { signOut, token, user, profile, preferences, isBootstrapping } = useAuth();
@@ -35,6 +36,7 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
   const [compatibilityAnswers, setCompatibilityAnswers] = useState(0);
   const displayName = getProfileName(profile, user);
   const displayInitial = displayName.charAt(0).toUpperCase();
+  const profilePhotoUrl = resolveMediaUrl(profile?.photo_url);
   const intentMode = getIntentMode(profile?.intent_mode ?? profile?.intention);
   const completion = calculateProfileCompletion({
     profile,
@@ -92,7 +94,11 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
 
         <OrbitCard elevated style={styles.heroCard}>
           <View style={styles.avatar}>
-            <Text style={styles.initial}>{displayInitial}</Text>
+            {profilePhotoUrl ? (
+              <Image source={{ uri: profilePhotoUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.initial}>{displayInitial}</Text>
+            )}
           </View>
           <View style={styles.heroCopy}>
             <Text style={styles.name}>{displayName}</Text>
@@ -105,6 +111,15 @@ export default function MyProfileScreen({ navigation }: MyProfileScreenProps) {
           percentage={completion.percentage}
           suggestions={completion.suggestions}
         />
+
+        {!profile?.photo_url ? (
+          <OrbitCard style={styles.warningCard}>
+            <Ionicons name="camera-outline" color={theme.colors.purpleLight} size={18} />
+            <Text style={styles.warningText}>
+              Adicione uma foto real em Dados pessoais para completar seu perfil.
+            </Text>
+          </OrbitCard>
+        ) : null}
 
         <OrbitCard style={styles.bioCard}>
           <View style={styles.bioHeader}>
@@ -195,6 +210,11 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceStrong,
     borderWidth: 1,
     borderColor: "rgba(124,92,252,0.25)",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   initial: {
     color: theme.colors.text,
@@ -237,5 +257,17 @@ const styles = StyleSheet.create({
   },
   shortcutStack: {
     gap: theme.spacing.md,
+  },
+  warningCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+    borderColor: "rgba(124,92,252,0.28)",
+  },
+  warningText: {
+    flex: 1,
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.small,
+    lineHeight: 19,
   },
 });

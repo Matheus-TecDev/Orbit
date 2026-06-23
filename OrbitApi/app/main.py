@@ -1,7 +1,9 @@
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -26,6 +28,13 @@ app.add_middleware(
     allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+Path(settings.media_root).mkdir(parents=True, exist_ok=True)
+app.mount(
+    settings.media_url_path,
+    StaticFiles(directory=settings.media_root),
+    name="media",
 )
 
 

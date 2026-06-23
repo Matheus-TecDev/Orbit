@@ -16,6 +16,7 @@ import { getChats } from "../../services/chatService";
 import { theme } from "../../styles/theme";
 import type { ChatPreview } from "../../types/chat";
 import { mapApiChatToChatPreview } from "../../types/chat";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function ChatListScreen({ navigation }: ChatListScreenProps) {
   const { token, user } = useAuth();
@@ -91,9 +92,9 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
         ) : null}
         {!loading
           ? chats.map((chat) => (
-              <Pressable
+              <ChatPreviewRow
                 key={chat.id}
-                accessibilityRole="button"
+                chat={chat}
                 onPress={() =>
                   navigation.navigate("Chat", {
                     chatId: chat.id,
@@ -102,33 +103,49 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                     matchId: chat.matchId,
                   })
                 }
-                style={({ pressed }) => pressed && styles.pressed}
-              >
-                <OrbitCard style={styles.chatCard}>
-                  <View style={styles.avatar}>
-                    {chat.photoUrl ? (
-                      <Image source={{ uri: chat.photoUrl }} style={styles.avatarImage} />
-                    ) : (
-                      <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
-                    )}
-                  </View>
-                  <View style={styles.info}>
-                    <View style={styles.nameRow}>
-                      <Text numberOfLines={1} style={styles.name}>
-                        {chat.name}
-                      </Text>
-                      <Text style={styles.time}>{chat.time}</Text>
-                    </View>
-                    <Text numberOfLines={1} style={styles.message}>
-                      {chat.lastMessage}
-                    </Text>
-                  </View>
-                </OrbitCard>
-              </Pressable>
+              />
             ))
           : null}
       </View>
     </OrbitScreen>
+  );
+}
+
+type ChatPreviewRowProps = {
+  chat: ChatPreview;
+  onPress: () => void;
+};
+
+function ChatPreviewRow({ chat, onPress }: ChatPreviewRowProps) {
+  const photoUrl = resolveMediaUrl(chat.photoUrl);
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
+      <OrbitCard style={styles.chatCard}>
+        <View style={styles.avatar}>
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
+          )}
+        </View>
+        <View style={styles.info}>
+          <View style={styles.nameRow}>
+            <Text numberOfLines={1} style={styles.name}>
+              {chat.name}
+            </Text>
+            <Text style={styles.time}>{chat.time}</Text>
+          </View>
+          <Text numberOfLines={1} style={styles.message}>
+            {chat.lastMessage}
+          </Text>
+        </View>
+      </OrbitCard>
+    </Pressable>
   );
 }
 

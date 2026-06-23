@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
   OrbitButton,
@@ -20,6 +20,7 @@ import { blockUser, reportUser } from "../../services/safetyService";
 import { theme } from "../../styles/theme";
 import type { ChatMessage } from "../../types/chat";
 import { mapApiChatToChatPreview, mapApiMessageToChatMessage } from "../../types/chat";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const { token, user } = useAuth();
@@ -31,6 +32,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const [chatError, setChatError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState(route.params.participantName ?? "Conversa");
+  const [participantPhotoUrl, setParticipantPhotoUrl] = useState<string | null>(null);
   const [participantUserId, setParticipantUserId] = useState(route.params.participantUserId ?? null);
   const [matchId, setMatchId] = useState(route.params.matchId ?? null);
   const [pendingAction, setPendingAction] = useState<PendingChatSafetyAction | null>(null);
@@ -62,6 +64,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           .map((chat) => mapApiChatToChatPreview(chat, user.id))
           .find((chat) => chat.id === route.params.chatId);
         setParticipantName(route.params.participantName ?? currentChat?.name ?? "Conversa");
+        setParticipantPhotoUrl(currentChat?.photoUrl ?? null);
         setParticipantUserId(route.params.participantUserId ?? currentChat?.userId ?? null);
         setMatchId(route.params.matchId ?? currentChat?.matchId ?? null);
         setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
@@ -118,6 +121,23 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   return (
     <OrbitScreen scroll={false}>
       <OrbitHeader title={participantName} subtitle="Mensagens" onBack={navigation.goBack} />
+
+      <View style={styles.participantHeader}>
+        <View style={styles.participantAvatar}>
+          {resolveMediaUrl(participantPhotoUrl) ? (
+            <Image
+              source={{ uri: resolveMediaUrl(participantPhotoUrl) ?? "" }}
+              style={styles.participantAvatarImage}
+            />
+          ) : (
+            <Text style={styles.participantInitial}>{participantName.charAt(0)}</Text>
+          )}
+        </View>
+        <View style={styles.participantCopy}>
+          <Text numberOfLines={1} style={styles.participantName}>{participantName}</Text>
+          <Text style={styles.participantMeta}>Conversa do match</Text>
+        </View>
+      </View>
 
       <View style={styles.messages}>
         {loading ? (
@@ -307,6 +327,52 @@ function getDialogConfirmLabel(action: PendingChatSafetyAction | null) {
 }
 
 const styles = StyleSheet.create({
+  participantHeader: {
+    minHeight: 70,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.md,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+  },
+  participantAvatar: {
+    width: 46,
+    height: 46,
+    borderRadius: theme.radius.round,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.purpleSoft,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    overflow: "hidden",
+  },
+  participantAvatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  participantInitial: {
+    color: theme.colors.text,
+    fontSize: theme.typography.body,
+    fontWeight: "600",
+  },
+  participantCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  participantName: {
+    color: theme.colors.text,
+    fontSize: theme.typography.body,
+    fontWeight: "500",
+  },
+  participantMeta: {
+    color: theme.colors.textSubtle,
+    fontSize: theme.typography.tiny,
+    fontWeight: "500",
+  },
   messages: {
     flex: 1,
     gap: theme.spacing.md,

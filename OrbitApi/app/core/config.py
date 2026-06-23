@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    media_root: str = "media"
+    media_url_path: str = "/media"
+    max_profile_photo_bytes: int = 5 * 1024 * 1024
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitButton,
@@ -13,22 +14,88 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import type { PhotoUploadScreenProps } from "../../navigation/types";
+import { ApiRequestError } from "../../services/apiClient";
+import { createProfile, updateProfile } from "../../services/profileService";
+import { uploadProfilePhoto } from "../../services/profilePhotoService";
 import { theme } from "../../styles/theme";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps) {
-  const { completeOnboarding, loading, error, clearError } = useAuth();
+  const { token, profile, completeOnboarding, loadCurrentUser, loading, error, clearError } = useAuth();
   const { basicInfo, buildPreferencePayload, buildProfilePayload } = useOnboarding();
-  const [placeholderSelected, setPlaceholderSelected] = useState(true);
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState(profile?.photo_url ?? null);
+  const [uploading, setUploading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const initial = basicInfo.publicName.trim().charAt(0).toUpperCase() || "O";
+  const previewUrl = resolveMediaUrl(uploadedPhotoUrl);
+  const canFinish = Boolean(uploadedPhotoUrl) && !uploading && !loading;
+
+  async function selectAndUploadPhoto() {
+    if (!token) {
+      setLocalError("Entre novamente para enviar sua foto.");
+      return;
+    }
+
+    clearError();
+    setLocalError(null);
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      setLocalError("Permita acesso à galeria para escolher sua foto.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.86,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const profilePayload = {
+        ...buildProfilePayload(),
+        photo_url: uploadedPhotoUrl ?? profile?.photo_url ?? null,
+      };
+      await saveProfileDraft(profilePayload);
+      const asset = result.assets[0];
+      const uploadedProfile = await uploadProfilePhoto(
+        {
+          uri: asset.uri,
+          fileName: asset.fileName,
+          mimeType: asset.mimeType,
+        },
+        token,
+      );
+      setUploadedPhotoUrl(uploadedProfile.photo_url);
+      await loadCurrentUser();
+    } catch (caughtError) {
+      setLocalError(toPhotoErrorMessage(caughtError));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function finishProfile() {
     clearError();
     setLocalError(null);
 
+    if (!uploadedPhotoUrl) {
+      setLocalError("Adicione uma foto real para concluir seu perfil.");
+      return;
+    }
+
     try {
       await completeOnboarding(
-        buildProfilePayload(),
+        {
+          ...buildProfilePayload(),
+          photo_url: uploadedPhotoUrl,
+        },
         buildPreferencePayload(),
       );
     } catch (caughtError) {
@@ -47,31 +114,41 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
 
       <View style={styles.stack}>
         <View style={styles.copy}>
-          <Text style={styles.title}>Comece com um placeholder.</Text>
+          <Text style={styles.title}>Adicione sua foto principal.</Text>
           <Text style={styles.subtitle}>
-            Upload real pode entrar depois. Por enquanto, o Orbit cria uma presença visual para o feed.
+            Escolha uma foto real da galeria. Ela será usada no Feed, matches e conversas.
           </Text>
         </View>
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => setPlaceholderSelected((current) => !current)}
+          accessibilityLabel="Selecionar foto do perfil"
+          onPress={selectAndUploadPhoto}
+          disabled={uploading || loading}
           style={({ pressed }) => [styles.photoPreview, pressed && styles.pressed]}
         >
           <View style={styles.avatar}>
-            <Text style={styles.initial}>{initial}</Text>
+            {previewUrl ? (
+              <Image source={{ uri: previewUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.initial}>{initial}</Text>
+            )}
           </View>
           <View style={styles.photoCopy}>
             <Text style={styles.photoTitle}>
-              {placeholderSelected ? "Placeholder ativo" : "Adicionar depois"}
+              {uploadedPhotoUrl ? "Foto enviada" : "Selecionar foto"}
             </Text>
             <Text style={styles.photoText}>
-              Seu perfil será criado com uma presença visual simples. Você poderá melhorar fotos ao completar o perfil.
+              {uploading
+                ? "Enviando sua foto com segurança..."
+                : "Toque para escolher uma imagem JPG, PNG ou WebP de até 5 MB."}
             </Text>
           </View>
-          <View style={[styles.toggle, placeholderSelected && styles.toggleOn]}>
-            {placeholderSelected ? (
+          <View style={[styles.toggle, uploadedPhotoUrl && styles.toggleOn]}>
+            {uploadedPhotoUrl ? (
               <Ionicons name="checkmark" color={theme.colors.text} size={16} />
+            ) : uploading ? (
+              <Ionicons name="cloud-upload-outline" color={theme.colors.textMuted} size={16} />
             ) : null}
           </View>
         </Pressable>
@@ -79,7 +156,7 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
         <OrbitCard style={styles.note}>
           <Ionicons name="lock-closed" color={theme.colors.textMuted} size={18} />
           <Text style={styles.noteText}>
-            O onboarding termina aqui. Preferências avançadas e perguntas de compatibilidade ficam no perfil.
+            Para novos perfis, a foto é obrigatória antes de entrar no Orbit.
           </Text>
         </OrbitCard>
 
@@ -88,11 +165,47 @@ export default function PhotoUploadScreen({ navigation }: PhotoUploadScreenProps
         <OrbitButton
           label={loading ? "Salvando perfil..." : "Entrar no Orbit"}
           loading={loading}
+          disabled={!canFinish}
           onPress={finishProfile}
         />
       </View>
     </OrbitScreen>
   );
+
+  async function saveProfileDraft(profilePayload: ReturnType<typeof buildProfilePayload>) {
+    if (!token) {
+      throw new Error("Entre novamente para enviar sua foto.");
+    }
+
+    if (profile) {
+      return updateProfile(profilePayload, token);
+    }
+
+    try {
+      return await createProfile(profilePayload, token);
+    } catch (caughtError) {
+      if (
+        caughtError instanceof ApiRequestError &&
+        (caughtError.status === 400 || caughtError.status === 409)
+      ) {
+        return updateProfile(profilePayload, token);
+      }
+
+      throw caughtError;
+    }
+  }
+}
+
+function toPhotoErrorMessage(caughtError: unknown) {
+  if (caughtError instanceof ApiRequestError) {
+    return caughtError.message;
+  }
+
+  if (caughtError instanceof Error) {
+    return caughtError.message;
+  }
+
+  return "Não foi possível enviar sua foto. Tente novamente.";
 }
 
 const styles = StyleSheet.create({
@@ -138,6 +251,11 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceStrong,
     borderWidth: 1,
     borderColor: "rgba(124,92,252,0.25)",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   initial: {
     color: theme.colors.text,

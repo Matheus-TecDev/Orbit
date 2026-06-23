@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { intentModeLabels } from "../../constants/options";
 import { theme } from "../../styles/theme";
 import type { IntentMode } from "../../types/profile";
 import type { UserRecommendation } from "../../types/recommendation";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 import OrbitCard from "../ui/OrbitCard";
 import OrbitChip from "../ui/OrbitChip";
 import CompatibilityBadge from "./CompatibilityBadge";
@@ -33,10 +34,16 @@ export default function UserRecommendationCard({
 }: UserRecommendationCardProps) {
   const showCompatibility = viewerMode !== "CASUAL";
   const explanationLabel = getExplanationLabel(viewerMode);
+  const photoUrl = resolveMediaUrl(user.photoUrl);
 
   return (
     <OrbitCard elevated style={styles.card}>
       <View style={[styles.photo, { backgroundColor: user.photoColor }]}>
+        {photoUrl ? (
+          <Image source={{ uri: photoUrl }} style={styles.photoImage} />
+        ) : (
+          <Text style={styles.initial}>{user.name.charAt(0)}</Text>
+        )}
         <LinearGradient
           pointerEvents="none"
           colors={["rgba(255,255,255,0.10)", "rgba(0,0,0,0.10)", "rgba(0,0,0,0.72)"]}
@@ -44,7 +51,6 @@ export default function UserRecommendationCard({
           end={{ x: 0.7, y: 1 }}
           style={StyleSheet.absoluteFillObject}
         />
-        <Text style={styles.initial}>{user.name.charAt(0)}</Text>
         <View style={styles.photoMeta}>
           <Text style={styles.intentPill}>{intentModeLabels[user.intentMode]}</Text>
         </View>
@@ -151,6 +157,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   initial: { color: theme.colors.text, fontSize: 96, fontWeight: "500", opacity: 0.94 },
+  photoImage: {
+    width: "100%",
+    height: "100%",
+  },
   photoMeta: {
     position: "absolute",
     right: theme.spacing.md,

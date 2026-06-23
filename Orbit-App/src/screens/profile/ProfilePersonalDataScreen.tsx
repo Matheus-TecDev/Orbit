@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitButton,
@@ -14,6 +15,8 @@ import {
 import { genderOptions } from "../../constants/options";
 import { useAuth } from "../../contexts/AuthContext";
 import type { ProfilePersonalDataScreenProps } from "../../navigation/types";
+import { ApiRequestError } from "../../services/apiClient";
+import { uploadProfilePhoto } from "../../services/profilePhotoService";
 import { updateProfile } from "../../services/profileService";
 import { theme } from "../../styles/theme";
 import type { GenderOption } from "../../types/profile";
@@ -22,6 +25,7 @@ import {
   maskBirthDate,
   parseBirthDateToApi,
 } from "../../utils/dateMask";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function ProfilePersonalDataScreen({
   navigation,
@@ -33,8 +37,10 @@ export default function ProfilePersonalDataScreen({
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [gender, setGender] = useState<string | null>(profile?.gender ?? null);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const profilePhotoUrl = resolveMediaUrl(profile?.photo_url);
 
   useEffect(() => {
     setDisplayName(profile?.display_name ?? user?.full_name ?? "");
@@ -87,22 +93,84 @@ export default function ProfilePersonalDataScreen({
     }
   }
 
+  async function selectAndUploadPhoto() {
+    if (!token) {
+      setError("Entre novamente para enviar sua foto.");
+      return;
+    }
+
+    setError(null);
+    setMessage(null);
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      setError("Permita acesso à galeria para escolher sua foto.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.86,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return;
+    }
+
+    setUploadingPhoto(true);
+
+    try {
+      const asset = result.assets[0];
+      await uploadProfilePhoto(
+        {
+          uri: asset.uri,
+          fileName: asset.fileName,
+          mimeType: asset.mimeType,
+        },
+        token,
+      );
+      await loadCurrentUser();
+      setMessage("Foto do perfil atualizada.");
+    } catch (caughtError) {
+      setError(toPhotoErrorMessage(caughtError));
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
   return (
     <OrbitScreen>
       <OrbitHeader title="Dados pessoais" subtitle="Informações principais do perfil" onBack={navigation.goBack} />
 
       <View style={styles.stack}>
-        <OrbitCard style={styles.photoCard}>
-          <View style={styles.photoPlaceholder}>
-            <Ionicons name="person" color={theme.colors.textMuted} size={34} />
-          </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Alterar foto do perfil"
+          onPress={selectAndUploadPhoto}
+          disabled={uploadingPhoto || saving}
+          style={({ pressed }) => [pressed && styles.pressed]}
+        >
+          <OrbitCard style={styles.photoCard}>
+            <View style={styles.photoPlaceholder}>
+              {profilePhotoUrl ? (
+                <Image source={{ uri: profilePhotoUrl }} style={styles.photoImage} />
+              ) : (
+                <Ionicons name="person" color={theme.colors.textMuted} size={34} />
+              )}
+            </View>
           <View style={styles.photoCopy}>
             <Text style={styles.sectionTitle}>Foto do perfil</Text>
             <Text style={styles.helpText}>
-              Upload real ainda não está disponível nesta etapa. Quando houver foto salva, ela será exibida aqui.
+              {uploadingPhoto
+                ? "Enviando sua foto..."
+                : profile?.photo_url
+                  ? "Toque para trocar sua foto principal."
+                  : "Toque para adicionar sua foto principal."}
             </Text>
           </View>
-        </OrbitCard>
+          </OrbitCard>
+        </Pressable>
 
         <OrbitCard style={styles.formCard}>
           <OrbitInput
@@ -164,6 +232,14 @@ export default function ProfilePersonalDataScreen({
   );
 }
 
+function toPhotoErrorMessage(caughtError: unknown) {
+  if (caughtError instanceof ApiRequestError) {
+    return caughtError.message;
+  }
+
+  return "Não foi possível enviar sua foto. Tente novamente.";
+}
+
 function formatApiDate(value: string | null | undefined) {
   if (!value) {
     return "";
@@ -191,10 +267,19 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceStrong,
     borderWidth: 1,
     borderColor: "rgba(124,92,252,0.25)",
+    overflow: "hidden",
+  },
+  photoImage: {
+    width: "100%",
+    height: "100%",
   },
   photoCopy: {
     flex: 1,
     gap: theme.spacing.xs,
+  },
+  pressed: {
+    opacity: 0.86,
+    transform: [{ scale: 0.99 }],
   },
   sectionTitle: {
     color: theme.colors.text,

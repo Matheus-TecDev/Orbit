@@ -29,6 +29,7 @@ export type UserRecommendation = {
   intentMode: IntentMode;
   bio: string | null;
   interests: string[];
+  photoUrl: string | null;
   photoColor: string;
   mutualScore: number;
   scoreAToB: number;
@@ -46,6 +47,7 @@ export type ApiRecommendation = {
   bio: string | null;
   age: number | null;
   city: string | null;
+  photo_url: string | null;
   intention: string | null;
   intent_mode: IntentMode;
   interests: string[];
@@ -75,6 +77,7 @@ export function mapApiRecommendationToFeedUser(
     intentMode: getIntentMode(recommendation.intent_mode ?? recommendation.intention),
     bio: recommendation.bio,
     interests: recommendation.interests ?? [],
+    photoUrl: recommendation.photo_url,
     photoColor: fallbackColors[index % fallbackColors.length],
     mutualScore: clampScore(recommendation.mutual_score),
     scoreAToB: clampScore(recommendation.score_a_to_b),

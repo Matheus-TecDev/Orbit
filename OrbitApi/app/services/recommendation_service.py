@@ -61,6 +61,7 @@ class ProfileSnapshot:
     intention: str | None
     intent_mode: IntentMode
     interests: frozenset[str]
+    photo_url: str | None = None
 
 
 @dataclass(frozen=True)
@@ -269,6 +270,7 @@ def get_recommendations(
             bio=candidate_subject.profile.bio,
             age=calculate_age(candidate_subject.profile.birth_date),
             city=candidate_subject.profile.city,
+            photo_url=candidate_subject.profile.photo_url,
             intention=candidate_subject.profile.intention,
             intent_mode=candidate_subject.profile.intent_mode,
             interests=sorted(candidate_subject.profile.interests),
@@ -570,6 +572,7 @@ def _to_subject(
         birth_date=profile.birth_date,
         gender=profile.gender,
         city=profile.city,
+        photo_url=profile.photo_url,
         intention=profile.intention,
         intent_mode=profile.intent_mode,
         interests=frozenset(interest.name for interest in profile.interests),
