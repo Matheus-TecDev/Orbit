@@ -285,6 +285,35 @@ def test_recommendations_return_partial_real_contract(monkeypatch) -> None:
     assert result.score_breakdown is not None
 
 
+def test_blocked_user_is_excluded_from_recommendations(monkeypatch) -> None:
+    current_user_id = uuid4()
+    blocked_user_id = uuid4()
+    visible_user_id = uuid4()
+    current_profile = model_profile(current_user_id, IntentMode.SERIOUS, "Atual")
+    blocked_profile = model_profile(blocked_user_id, IntentMode.SERIOUS, "Bloqueado")
+    visible_profile = model_profile(visible_user_id, IntentMode.SERIOUS, "Visivel")
+    current_preference = model_preference(current_user_id)
+    preferences = [
+        model_preference(blocked_user_id),
+        model_preference(visible_user_id),
+    ]
+    mock_recommendation_repositories(
+        monkeypatch,
+        current_profile=current_profile,
+        current_preference=current_preference,
+        candidates=[blocked_profile, visible_profile],
+        preferences=preferences,
+        blocked_user_ids={blocked_user_id},
+    )
+
+    recommendations = recommendation_service.get_recommendations(
+        SimpleNamespace(),
+        current_user=SimpleNamespace(id=current_user_id),
+    )
+
+    assert [item.display_name for item in recommendations] == ["Visivel"]
+
+
 def mock_recommendation_repositories(
     monkeypatch,
     *,
@@ -292,6 +321,7 @@ def mock_recommendation_repositories(
     current_preference: Preference,
     candidates: list[Profile],
     preferences: list[Preference],
+    blocked_user_ids: set[UUID] | None = None,
 ) -> None:
     monkeypatch.setattr(recommendation_service, "get_profile_by_user_id", lambda *_: current_profile)
     monkeypatch.setattr(recommendation_service, "get_preference_by_user_id", lambda *_: current_preference)
@@ -302,6 +332,11 @@ def mock_recommendation_repositories(
     monkeypatch.setattr(recommendation_service, "list_priorities_by_user_ids", lambda *_: [])
     monkeypatch.setattr(recommendation_service, "list_dealbreakers_by_user_ids", lambda *_: [])
     monkeypatch.setattr(recommendation_service, "list_active_questions", lambda *_: [])
+    monkeypatch.setattr(
+        recommendation_service,
+        "list_blocked_user_ids",
+        lambda *_args, **_kwargs: blocked_user_ids or set(),
+    )
 
 
 def model_profile(

@@ -9,6 +9,7 @@ export type ChatMessage = {
 
 export type ChatPreview = {
   id: string;
+  matchId: string | null;
   userId: string;
   profileId: string | null;
   name: string;
@@ -67,6 +68,7 @@ export function mapApiChatToChatPreview(chat: ApiChat, currentUserId: string): C
 
   return {
     id: chat.id,
+    matchId: chat.match_id,
     userId: otherParticipantId,
     profileId: participant?.profile_id ?? null,
     name: participant?.name ?? "Conversa",

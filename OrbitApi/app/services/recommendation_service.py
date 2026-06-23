@@ -40,6 +40,7 @@ from app.repositories.preference_repository import (
     list_preferences_by_user_ids,
 )
 from app.repositories.profile_repository import get_profile_by_user_id, list_visible_profiles
+from app.repositories.safety_repository import list_blocked_user_ids
 from app.schemas.recommendation import (
     DirectionalMetricRead,
     RecommendationRead,
@@ -203,6 +204,7 @@ def get_recommendations(
 
     current_preference_model = get_preference_by_user_id(db, current_user.id)
     acted_profile_ids = list_acted_profile_ids(db, user_id=current_user.id)
+    blocked_user_ids = list_blocked_user_ids(db, user_id=current_user.id)
 
     # TODO: move stable eligibility filters (mode, age, gender, city and acted profiles)
     # into this repository query before the in-memory ranking pool grows.
@@ -210,6 +212,7 @@ def get_recommendations(
         profile
         for profile in list_visible_profiles(db, excluded_user_id=current_user.id)
         if profile.id not in acted_profile_ids
+        and profile.user_id not in blocked_user_ids
     ]
     user_ids = [current_user.id, *[candidate.user_id for candidate in candidate_models]]
     preferences_by_user = {

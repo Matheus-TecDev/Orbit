@@ -9,7 +9,7 @@ from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.mappers import match_to_read
 from app.schemas.match import MatchRead
-from app.services.match_service import get_chat_id_for_match, get_user_matches, like_profile, pass_profile
+from app.services.match_service import get_chat_id_for_match, get_user_matches, like_profile, pass_profile, unmatch
 
 
 router = APIRouter(prefix="/matches", tags=["matches"])
@@ -44,3 +44,13 @@ def list_current_matches(
         match_to_read(match, chat_id=get_chat_id_for_match(db, match=match))
         for match in get_user_matches(db, current_user=current_user)
     ]
+
+
+@router.post("/{match_id}/unmatch", response_model=MatchRead)
+def unmatch_current_match(
+    match_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> MatchRead:
+    match = unmatch(db, current_user=current_user, match_id=match_id)
+    return match_to_read(match, chat_id=None)

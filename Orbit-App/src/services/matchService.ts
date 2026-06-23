@@ -32,3 +32,10 @@ export async function passProfile(profileId: string, token: string) {
     token,
   });
 }
+
+export async function unmatchMatch(matchId: string, token: string) {
+  return apiRequest<ApiMatch>(`/matches/${matchId}/unmatch`, {
+    method: "POST",
+    token,
+  });
+}

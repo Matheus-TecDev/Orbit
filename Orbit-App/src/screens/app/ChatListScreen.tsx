@@ -98,6 +98,8 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                   navigation.navigate("Chat", {
                     chatId: chat.id,
                     participantName: chat.name,
+                    participantUserId: chat.userId,
+                    matchId: chat.matchId,
                   })
                 }
                 style={({ pressed }) => pressed && styles.pressed}

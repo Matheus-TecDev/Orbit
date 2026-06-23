@@ -2,6 +2,7 @@ export { default as OrbitBackground } from "./OrbitBackground";
 export { default as OrbitButton } from "./OrbitButton";
 export { default as OrbitCard } from "./OrbitCard";
 export { default as OrbitChip } from "./OrbitChip";
+export { default as OrbitConfirmDialog } from "./OrbitConfirmDialog";
 export { default as OrbitEmptyState } from "./OrbitEmptyState";
 export { default as OrbitErrorMessage } from "./OrbitErrorMessage";
 export { default as OrbitHeader } from "./OrbitHeader";

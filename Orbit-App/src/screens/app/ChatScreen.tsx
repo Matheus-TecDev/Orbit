@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
+  OrbitButton,
   OrbitCard,
+  OrbitConfirmDialog,
   OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
@@ -13,6 +15,8 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import type { ChatScreenProps } from "../../navigation/types";
 import { getChatMessages, getChats, sendChatMessage } from "../../services/chatService";
+import { unmatchMatch } from "../../services/matchService";
+import { blockUser, reportUser } from "../../services/safetyService";
 import { theme } from "../../styles/theme";
 import type { ChatMessage } from "../../types/chat";
 import { mapApiChatToChatPreview, mapApiMessageToChatMessage } from "../../types/chat";
@@ -23,8 +27,13 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState(route.params.participantName ?? "Conversa");
+  const [participantUserId, setParticipantUserId] = useState(route.params.participantUserId ?? null);
+  const [matchId, setMatchId] = useState(route.params.matchId ?? null);
+  const [pendingAction, setPendingAction] = useState<PendingChatSafetyAction | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -53,6 +62,8 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           .map((chat) => mapApiChatToChatPreview(chat, user.id))
           .find((chat) => chat.id === route.params.chatId);
         setParticipantName(route.params.participantName ?? currentChat?.name ?? "Conversa");
+        setParticipantUserId(route.params.participantUserId ?? currentChat?.userId ?? null);
+        setMatchId(route.params.matchId ?? currentChat?.matchId ?? null);
         setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
       } catch {
         if (!isActive) {
@@ -116,6 +127,11 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           </>
         ) : null}
         <OrbitErrorMessage message={chatError} />
+        {feedback ? (
+          <OrbitCard style={styles.feedbackCard}>
+            <Text style={styles.feedbackText}>{feedback}</Text>
+          </OrbitCard>
+        ) : null}
         {!loading && messages.length === 0 ? (
           <OrbitEmptyState
             icon={chatError ? "cloud-offline-outline" : "chatbubble-ellipses-outline"}
@@ -137,6 +153,30 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
               </View>
             ))
           : null}
+      </View>
+
+      <View style={styles.safetyActions}>
+        <OrbitButton
+          compact
+          variant="ghost"
+          label="Desfazer"
+          disabled={actionLoading || !matchId}
+          onPress={() => setPendingAction("unmatch")}
+        />
+        <OrbitButton
+          compact
+          variant="ghost"
+          label="Denunciar"
+          disabled={actionLoading || !participantUserId}
+          onPress={() => setPendingAction("report")}
+        />
+        <OrbitButton
+          compact
+          variant="danger"
+          label="Bloquear"
+          disabled={actionLoading || !participantUserId}
+          onPress={() => setPendingAction("block")}
+        />
       </View>
 
       <OrbitCard elevated style={styles.suggestion}>
@@ -174,8 +214,96 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           )}
         </Pressable>
       </View>
+      <OrbitConfirmDialog
+        visible={pendingAction !== null}
+        title={getDialogTitle(pendingAction)}
+        message={getDialogMessage(pendingAction, participantName)}
+        confirmLabel={getDialogConfirmLabel(pendingAction)}
+        loading={actionLoading}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={executePendingAction}
+      />
     </OrbitScreen>
   );
+
+  async function executePendingAction() {
+    if (!token || !pendingAction) {
+      setChatError("Entre novamente para continuar.");
+      return;
+    }
+
+    setActionLoading(true);
+    setChatError(null);
+    setFeedback(null);
+
+    try {
+      if (pendingAction === "unmatch") {
+        if (!matchId) {
+          setChatError("Este chat não possui match ativo.");
+          return;
+        }
+        await unmatchMatch(matchId, token);
+        navigation.goBack();
+      }
+      if (pendingAction === "block") {
+        if (!participantUserId) {
+          setChatError("Não foi possível identificar o usuário.");
+          return;
+        }
+        await blockUser(participantUserId, token);
+        navigation.goBack();
+      }
+      if (pendingAction === "report") {
+        if (!participantUserId) {
+          setChatError("Não foi possível identificar o usuário.");
+          return;
+        }
+        await reportUser(
+          participantUserId,
+          { reason: "denuncia_usuario", details: `Denúncia enviada a partir do chat ${route.params.chatId}.` },
+          token,
+        );
+        setFeedback("Denúncia enviada.");
+      }
+      setPendingAction(null);
+    } catch {
+      setChatError("Não foi possível concluir esta ação.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+}
+
+type PendingChatSafetyAction = "unmatch" | "block" | "report";
+
+function getDialogTitle(action: PendingChatSafetyAction | null) {
+  if (action === "block") {
+    return "Bloquear usuário?";
+  }
+  if (action === "report") {
+    return "Denunciar usuário?";
+  }
+  return "Desfazer match?";
+}
+
+function getDialogMessage(action: PendingChatSafetyAction | null, name: string) {
+  if (action === "block") {
+    return `${name} não aparecerá mais em recomendações, matches ou conversas.`;
+  }
+  if (action === "report") {
+    return `A denúncia sobre ${name} será registrada para revisão.`;
+  }
+  return `Você e ${name} deixarão de aparecer como match e o chat será encerrado.`;
+}
+
+function getDialogConfirmLabel(action: PendingChatSafetyAction | null) {
+  if (action === "block") {
+    return "Bloquear";
+  }
+  if (action === "report") {
+    return "Denunciar";
+  }
+  return "Desfazer";
 }
 
 const styles = StyleSheet.create({
@@ -219,6 +347,21 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     padding: theme.spacing.md,
     marginVertical: theme.spacing.md,
+  },
+  safetyActions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+  },
+  feedbackCard: {
+    borderColor: "rgba(76,217,100,0.28)",
+    backgroundColor: "rgba(76,217,100,0.10)",
+  },
+  feedbackText: {
+    color: theme.colors.text,
+    fontSize: theme.typography.small,
+    fontWeight: "500",
   },
   suggestionIcon: {
     width: 28,

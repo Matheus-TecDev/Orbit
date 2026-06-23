@@ -11,6 +11,7 @@ from app.models.match import Match
 from app.models.message import Message
 from app.models.preference import Preference
 from app.models.profile import Profile
+from app.models.safety import UserBlock, UserReport
 from app.models.user import User
 
 __all__ = [
@@ -25,6 +26,8 @@ __all__ = [
     "Message",
     "Preference",
     "Profile",
+    "UserBlock",
+    "UserReport",
     "User",
     "chat_participants",
     "preference_interests",
