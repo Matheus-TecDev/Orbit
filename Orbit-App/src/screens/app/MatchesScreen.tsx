@@ -1,10 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitButton,
   OrbitCard,
+  OrbitChip,
   OrbitEmptyState,
   OrbitErrorMessage,
   OrbitHeader,
@@ -92,11 +93,29 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
           ? matches.map((match, index) => (
               <OrbitCard key={match.id} elevated={index === 0} style={styles.matchCard}>
                 <View style={[styles.avatar, { backgroundColor: match.photoColor }]}>
-                  <Text style={styles.initial}>{match.name.charAt(0)}</Text>
+                  {match.photoUrl ? (
+                    <Image source={{ uri: match.photoUrl }} style={styles.avatarImage} />
+                  ) : (
+                    <Text style={styles.initial}>{match.name.charAt(0)}</Text>
+                  )}
                 </View>
                 <View style={styles.info}>
-                  <Text style={styles.name}>{match.name}</Text>
-                  {match.city ? <Text style={styles.meta}>{match.city}</Text> : null}
+                  <Text numberOfLines={1} style={styles.name}>
+                    {match.name}
+                  </Text>
+                  <Text style={styles.meta}>{buildMatchMeta(match)}</Text>
+                  {match.shortBio ? (
+                    <Text numberOfLines={2} style={styles.bio}>
+                      {match.shortBio}
+                    </Text>
+                  ) : null}
+                  {match.interests.length > 0 ? (
+                    <View style={styles.chips}>
+                      {match.interests.slice(0, 3).map((interest) => (
+                        <OrbitChip key={interest} label={interest} selected />
+                      ))}
+                    </View>
+                  ) : null}
                 </View>
                 <OrbitButton
                   compact
@@ -105,7 +124,10 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
                   onPress={() => {
                     if (match.chatId) {
                       setChatError(null);
-                      navigation.navigate("Chat", { chatId: match.chatId });
+                      navigation.navigate("Chat", {
+                        chatId: match.chatId,
+                        participantName: match.name,
+                      });
                       return;
                     }
 
@@ -121,13 +143,22 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
   );
 }
 
+function buildMatchMeta(match: MatchListItem) {
+  const pieces = [
+    match.age ? `${match.age} anos` : null,
+    match.city,
+  ].filter(Boolean);
+
+  return pieces.length > 0 ? pieces.join(" · ") : "Perfil real";
+}
+
 const styles = StyleSheet.create({
   stack: {
     gap: theme.spacing.lg,
   },
   matchCard: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: theme.spacing.md,
     padding: theme.spacing.md,
   },
@@ -139,6 +170,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.16)",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   initial: {
     color: theme.colors.text,
@@ -158,5 +194,16 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     fontWeight: "500",
+  },
+  bio: {
+    color: theme.colors.textSubtle,
+    fontSize: theme.typography.small,
+    lineHeight: 18,
+  },
+  chips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xs,
   },
 });

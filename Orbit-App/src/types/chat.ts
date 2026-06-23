@@ -10,18 +10,36 @@ export type ChatMessage = {
 export type ChatPreview = {
   id: string;
   userId: string;
+  profileId: string | null;
   name: string;
   lastMessage: string;
   time: string;
+  photoUrl: string | null;
+  shortBio: string | null;
+  interests: string[];
   messages: ChatMessage[];
   isApiBacked?: boolean;
+};
+
+export type ParticipantSummary = {
+  user_id: string;
+  profile_id: string | null;
+  name: string;
+  age: number | null;
+  city: string | null;
+  short_bio: string | null;
+  intent_mode: string | null;
+  interests: string[];
+  photo_url: string | null;
 };
 
 export type ApiChat = {
   id: string;
   match_id: string | null;
   participant_ids: string[];
+  other_participant: ParticipantSummary | null;
   last_message: string | null;
+  last_message_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -40,7 +58,9 @@ export type MessageCreate = {
 };
 
 export function mapApiChatToChatPreview(chat: ApiChat, currentUserId: string): ChatPreview {
+  const participant = chat.other_participant;
   const otherParticipantId =
+    participant?.user_id ??
     chat.participant_ids.find((participantId) => participantId !== currentUserId) ??
     chat.participant_ids[0] ??
     chat.id;
@@ -48,9 +68,13 @@ export function mapApiChatToChatPreview(chat: ApiChat, currentUserId: string): C
   return {
     id: chat.id,
     userId: otherParticipantId,
-    name: "Conversa Orbit",
-    lastMessage: chat.last_message ?? "Comece a conversa pelo Orbit.",
-    time: formatChatTime(chat.updated_at),
+    profileId: participant?.profile_id ?? null,
+    name: participant?.name ?? "Conversa",
+    lastMessage: chat.last_message ?? "Nenhuma mensagem ainda.",
+    time: formatChatTime(chat.last_message_at ?? chat.updated_at),
+    photoUrl: participant?.photo_url ?? null,
+    shortBio: participant?.short_bio ?? null,
+    interests: participant?.interests ?? [],
     messages: [],
     isApiBacked: true,
   };

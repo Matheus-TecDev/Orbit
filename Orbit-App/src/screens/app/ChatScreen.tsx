@@ -12,10 +12,10 @@ import {
 } from "../../components/ui";
 import { useAuth } from "../../contexts/AuthContext";
 import type { ChatScreenProps } from "../../navigation/types";
-import { getChatMessages, sendChatMessage } from "../../services/chatService";
+import { getChatMessages, getChats, sendChatMessage } from "../../services/chatService";
 import { theme } from "../../styles/theme";
 import type { ChatMessage } from "../../types/chat";
-import { mapApiMessageToChatMessage } from "../../types/chat";
+import { mapApiChatToChatPreview, mapApiMessageToChatMessage } from "../../types/chat";
 
 export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const { token, user } = useAuth();
@@ -24,6 +24,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [participantName, setParticipantName] = useState(route.params.participantName ?? "Conversa");
 
   useEffect(() => {
     let isActive = true;
@@ -39,12 +40,19 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
       setChatError(null);
 
       try {
-        const apiMessages = await getChatMessages(route.params.chatId, token);
+        const [apiMessages, apiChats] = await Promise.all([
+          getChatMessages(route.params.chatId, token),
+          getChats(token),
+        ]);
 
         if (!isActive) {
           return;
         }
 
+        const currentChat = apiChats
+          .map((chat) => mapApiChatToChatPreview(chat, user.id))
+          .find((chat) => chat.id === route.params.chatId);
+        setParticipantName(route.params.participantName ?? currentChat?.name ?? "Conversa");
         setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
       } catch {
         if (!isActive) {
@@ -65,7 +73,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     return () => {
       isActive = false;
     };
-  }, [route.params.chatId, token, user]);
+  }, [route.params.chatId, route.params.participantName, token, user]);
 
   async function sendMessage() {
     const text = draft.trim();
@@ -98,7 +106,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
 
   return (
     <OrbitScreen scroll={false}>
-      <OrbitHeader title="Conversa Orbit" subtitle="Mensagens" onBack={navigation.goBack} />
+      <OrbitHeader title={participantName} subtitle="Mensagens" onBack={navigation.goBack} />
 
       <View style={styles.messages}>
         {loading ? (

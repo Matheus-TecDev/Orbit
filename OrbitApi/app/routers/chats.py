@@ -21,7 +21,10 @@ def list_chats(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
 ) -> list[ChatRead]:
-    return [chat_to_read(chat) for chat in list_chats_for_user(db, user_id=current_user.id)]
+    return [
+        chat_to_read(chat, current_user_id=current_user.id)
+        for chat in list_chats_for_user(db, user_id=current_user.id)
+    ]
 
 
 @router.get("/{chat_id}/messages", response_model=list[MessageRead])

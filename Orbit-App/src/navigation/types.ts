@@ -37,7 +37,7 @@ export type AppTabParamList = {
 
 export type AppStackParamList = {
   AppTabs: NavigatorScreenParams<AppTabParamList> | undefined;
-  Chat: { chatId: string };
+  Chat: { chatId: string; participantName?: string };
   ProfilePersonalData: undefined;
   ProfileIntent: undefined;
   ProfileInterests: undefined;

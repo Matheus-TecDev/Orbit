@@ -17,7 +17,10 @@ services:
       retries: 10
 
   backend:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"
     container_name: orbit_ai_backend
     environment:
       APP_NAME: ${APP_NAME:-Orbit AI API}

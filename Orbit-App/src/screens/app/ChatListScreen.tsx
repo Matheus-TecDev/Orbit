@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   OrbitCard,
@@ -22,7 +23,8 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
   const [loading, setLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     let isActive = true;
 
     async function loadChats() {
@@ -62,7 +64,8 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
     return () => {
       isActive = false;
     };
-  }, [token, user]);
+    }, [token, user]),
+  );
 
   return (
     <OrbitScreen>
@@ -91,16 +94,27 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
               <Pressable
                 key={chat.id}
                 accessibilityRole="button"
-                onPress={() => navigation.navigate("Chat", { chatId: chat.id })}
+                onPress={() =>
+                  navigation.navigate("Chat", {
+                    chatId: chat.id,
+                    participantName: chat.name,
+                  })
+                }
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <OrbitCard style={styles.chatCard}>
                   <View style={styles.avatar}>
-                    <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
+                    {chat.photoUrl ? (
+                      <Image source={{ uri: chat.photoUrl }} style={styles.avatarImage} />
+                    ) : (
+                      <Text style={styles.initial}>{chat.name.charAt(0)}</Text>
+                    )}
                   </View>
                   <View style={styles.info}>
                     <View style={styles.nameRow}>
-                      <Text style={styles.name}>{chat.name}</Text>
+                      <Text numberOfLines={1} style={styles.name}>
+                        {chat.name}
+                      </Text>
                       <Text style={styles.time}>{chat.time}</Text>
                     </View>
                     <Text numberOfLines={1} style={styles.message}>
@@ -139,6 +153,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.14)",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   initial: {
     color: theme.colors.text,
@@ -156,6 +175,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   name: {
+    flex: 1,
     color: theme.colors.text,
     fontSize: theme.typography.body,
     fontWeight: "500",

@@ -4,8 +4,10 @@ from app.models.chat import Chat
 from app.models.match import Match
 from app.models.preference import Preference
 from app.models.profile import Profile
+from app.models.user import User
 from app.schemas.chat import ChatRead
 from app.schemas.match import MatchRead
+from app.schemas.participant import ParticipantSummary, calculate_age, summarize_bio
 from app.schemas.preference import PreferenceRead
 from app.schemas.profile import ProfileRead
 
@@ -56,19 +58,62 @@ def match_to_read(match: Match, *, chat_id: UUID | None = None) -> MatchRead:
         id=match.id,
         status=match.status,
         target_profile=profile_to_read(match.target_profile),
+        other_participant=profile_to_participant_summary(match.target_profile),
         chat_id=resolved_chat_id,
         created_at=match.created_at,
         updated_at=match.updated_at,
     )
 
 
-def chat_to_read(chat: Chat) -> ChatRead:
-    last_message = chat.messages[-1].content if chat.messages else None
+def chat_to_read(chat: Chat, *, current_user_id: UUID) -> ChatRead:
+    last_message = chat.messages[-1] if chat.messages else None
+    other_participant = next(
+        (participant for participant in chat.participants if participant.id != current_user_id),
+        None,
+    )
+
     return ChatRead(
         id=chat.id,
         match_id=chat.match_id,
         participant_ids=[participant.id for participant in chat.participants],
-        last_message=last_message,
+        other_participant=(
+            user_to_participant_summary(other_participant)
+            if other_participant is not None
+            else None
+        ),
+        last_message=last_message.content if last_message is not None else None,
+        last_message_at=last_message.created_at if last_message is not None else None,
         created_at=chat.created_at,
         updated_at=chat.updated_at,
+    )
+
+
+def profile_to_participant_summary(profile: Profile) -> ParticipantSummary:
+    return ParticipantSummary(
+        user_id=profile.user_id,
+        profile_id=profile.id,
+        name=profile.display_name,
+        age=calculate_age(profile.birth_date),
+        city=profile.city,
+        short_bio=summarize_bio(profile.bio),
+        intent_mode=profile.intent_mode,
+        interests=[interest.name for interest in profile.interests[:6]],
+        photo_url=profile.photo_url,
+    )
+
+
+def user_to_participant_summary(user: User) -> ParticipantSummary:
+    if user.profile is not None:
+        return profile_to_participant_summary(user.profile)
+
+    return ParticipantSummary(
+        user_id=user.id,
+        profile_id=None,
+        name=user.full_name,
+        age=None,
+        city=None,
+        short_bio=None,
+        intent_mode=None,
+        interests=[],
+        photo_url=None,
     )
