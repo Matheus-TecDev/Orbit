@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { OrbitCard, OrbitScreen } from "../components/ui";
 import ChatScreen from "../screens/app/ChatScreen";
+import PublicProfileScreen from "../screens/app/PublicProfileScreen";
 import ProfileCompatibilityScreen from "../screens/profile/ProfileCompatibilityScreen";
 import ProfileIntentScreen from "../screens/profile/ProfileIntentScreen";
 import ProfileInterestsScreen from "../screens/profile/ProfileInterestsScreen";
@@ -43,6 +44,7 @@ function AppStackNavigator() {
   return (
     <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="AppTabs" component={AppTabsNavigator} />
+      <AppStack.Screen name="PublicProfile" component={PublicProfileScreen} />
       <AppStack.Screen name="Chat" component={ChatScreen} />
       <AppStack.Screen name="ProfilePersonalData" component={ProfilePersonalDataScreen} />
       <AppStack.Screen name="ProfileIntent" component={ProfileIntentScreen} />

@@ -20,7 +20,7 @@ import { theme } from "../../styles/theme";
 import type { IntentMode } from "../../types/profile";
 import type { UserRecommendation } from "../../types/recommendation";
 
-export default function FeedScreen(_props: FeedScreenProps) {
+export default function FeedScreen({ navigation }: FeedScreenProps) {
   const { token, profile } = useAuth();
   const [recommendations, setRecommendations] = useState<UserRecommendation[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -139,6 +139,12 @@ export default function FeedScreen(_props: FeedScreenProps) {
                 }}
                 onViewProfile={() =>
                   setExpandedId((current) => (current === currentUser.id ? null : currentUser.id))
+                }
+                onOpenProfile={() =>
+                  navigation.navigate("PublicProfile", {
+                    profileId: currentUser.profileId,
+                    source: "feed",
+                  })
                 }
                 loadingAction={loadingAction}
               />

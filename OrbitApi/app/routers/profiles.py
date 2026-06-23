@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
@@ -9,11 +10,13 @@ from app.models.user import User
 from app.repositories.profile_repository import get_profile_by_user_id, update_profile
 from app.schemas.mappers import profile_to_read
 from app.schemas.profile import ProfileCreate, ProfileRead, ProfileUpdate
+from app.schemas.public_profile import PublicProfileRead
 from app.services.intent_mode_service import (
     create_profile_with_intent_sync,
     update_profile_with_intent_sync,
 )
 from app.services.profile_photo_service import save_profile_photo
+from app.services.public_profile_service import get_public_profile
 
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
@@ -40,6 +43,15 @@ def read_current_profile(
     if profile is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
     return profile_to_read(profile)
+
+
+@router.get("/{profile_id}/public", response_model=PublicProfileRead)
+def read_public_profile(
+    profile_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> PublicProfileRead:
+    return get_public_profile(db, current_user=current_user, profile_id=profile_id)
 
 
 @router.patch("/me", response_model=ProfileRead)

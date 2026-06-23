@@ -100,6 +100,7 @@ export default function ChatListScreen({ navigation }: ChatListScreenProps) {
                     chatId: chat.id,
                     participantName: chat.name,
                     participantUserId: chat.userId,
+                    participantProfileId: chat.profileId,
                     matchId: chat.matchId,
                   })
                 }

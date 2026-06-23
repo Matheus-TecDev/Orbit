@@ -37,10 +37,17 @@ export type AppTabParamList = {
 
 export type AppStackParamList = {
   AppTabs: NavigatorScreenParams<AppTabParamList> | undefined;
+  PublicProfile: {
+    profileId: string;
+    source: "feed" | "match" | "chat";
+    matchId?: string | null;
+    chatId?: string | null;
+  };
   Chat: {
     chatId: string;
     participantName?: string;
     participantUserId?: string;
+    participantProfileId?: string | null;
     matchId?: string | null;
   };
   ProfilePersonalData: undefined;
@@ -108,7 +115,10 @@ export type PhotoUploadScreenProps = NativeStackScreenProps<
   "PhotoUpload"
 >;
 
-export type FeedScreenProps = BottomTabScreenProps<AppTabParamList, "Feed">;
+export type FeedScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<AppTabParamList, "Feed">,
+  NativeStackScreenProps<AppStackParamList>
+>;
 export type MatchesScreenProps = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, "Matches">,
   NativeStackScreenProps<AppStackParamList>
@@ -122,6 +132,10 @@ export type MyProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<AppStackParamList>
 >;
 export type ChatScreenProps = NativeStackScreenProps<AppStackParamList, "Chat">;
+export type PublicProfileScreenProps = NativeStackScreenProps<
+  AppStackParamList,
+  "PublicProfile"
+>;
 export type ProfilePersonalDataScreenProps = NativeStackScreenProps<
   AppStackParamList,
   "ProfilePersonalData"

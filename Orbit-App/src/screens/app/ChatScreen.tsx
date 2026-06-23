@@ -34,6 +34,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const [participantName, setParticipantName] = useState(route.params.participantName ?? "Conversa");
   const [participantPhotoUrl, setParticipantPhotoUrl] = useState<string | null>(null);
   const [participantUserId, setParticipantUserId] = useState(route.params.participantUserId ?? null);
+  const [participantProfileId, setParticipantProfileId] = useState(route.params.participantProfileId ?? null);
   const [matchId, setMatchId] = useState(route.params.matchId ?? null);
   const [pendingAction, setPendingAction] = useState<PendingChatSafetyAction | null>(null);
 
@@ -66,6 +67,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
         setParticipantName(route.params.participantName ?? currentChat?.name ?? "Conversa");
         setParticipantPhotoUrl(currentChat?.photoUrl ?? null);
         setParticipantUserId(route.params.participantUserId ?? currentChat?.userId ?? null);
+        setParticipantProfileId(route.params.participantProfileId ?? currentChat?.profileId ?? null);
         setMatchId(route.params.matchId ?? currentChat?.matchId ?? null);
         setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
       } catch {
@@ -87,7 +89,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     return () => {
       isActive = false;
     };
-  }, [route.params.chatId, route.params.participantName, token, user]);
+  }, [route.params.chatId, route.params.participantName, route.params.participantProfileId, token, user]);
 
   async function sendMessage() {
     const text = draft.trim();
@@ -122,7 +124,24 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     <OrbitScreen scroll={false}>
       <OrbitHeader title={participantName} subtitle="Mensagens" onBack={navigation.goBack} />
 
-      <View style={styles.participantHeader}>
+      <Pressable
+        accessibilityRole="button"
+        disabled={!participantProfileId}
+        onPress={() => {
+          if (participantProfileId) {
+            navigation.navigate("PublicProfile", {
+              profileId: participantProfileId,
+              source: "chat",
+              matchId,
+              chatId: route.params.chatId,
+            });
+          }
+        }}
+        style={({ pressed }) => [
+          styles.participantHeader,
+          pressed && styles.participantHeaderPressed,
+        ]}
+      >
         <View style={styles.participantAvatar}>
           {resolveMediaUrl(participantPhotoUrl) ? (
             <Image
@@ -137,7 +156,10 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           <Text numberOfLines={1} style={styles.participantName}>{participantName}</Text>
           <Text style={styles.participantMeta}>Conversa do match</Text>
         </View>
-      </View>
+        {participantProfileId ? (
+          <Ionicons name="chevron-forward" color={theme.colors.textMuted} size={18} />
+        ) : null}
+      </Pressable>
 
       <View style={styles.messages}>
         {loading ? (
@@ -338,6 +360,10 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.md,
+  },
+  participantHeaderPressed: {
+    opacity: 0.84,
+    transform: [{ scale: 0.99 }],
   },
   participantAvatar: {
     width: 46,

@@ -114,6 +114,7 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
                       chatId: match.chatId,
                       participantName: match.name,
                       participantUserId: match.userId,
+                      participantProfileId: match.profileId,
                       matchId: match.id,
                     });
                     return;
@@ -121,6 +122,14 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
 
                   setChatError("Este match ainda não tem conversa disponível.");
                 }}
+                onOpenProfile={() =>
+                  navigation.navigate("PublicProfile", {
+                    profileId: match.profileId,
+                    source: "match",
+                    matchId: match.id,
+                    chatId: match.chatId,
+                  })
+                }
                 onUnmatch={() => setPendingAction({ type: "unmatch", match })}
                 onReport={() => setPendingAction({ type: "report", match })}
                 onBlock={() => setPendingAction({ type: "block", match })}
@@ -184,6 +193,7 @@ type MatchCardProps = {
   elevated: boolean;
   actionLoading: boolean;
   onOpenChat: () => void;
+  onOpenProfile: () => void;
   onUnmatch: () => void;
   onReport: () => void;
   onBlock: () => void;
@@ -194,6 +204,7 @@ function MatchCard({
   elevated,
   actionLoading,
   onOpenChat,
+  onOpenProfile,
   onUnmatch,
   onReport,
   onBlock,
@@ -237,6 +248,13 @@ function MatchCard({
         />
       </View>
       <View style={styles.safetyActions}>
+        <OrbitButton
+          compact
+          variant="secondary"
+          label="Perfil"
+          disabled={actionLoading}
+          onPress={onOpenProfile}
+        />
         <OrbitButton
           compact
           variant="ghost"

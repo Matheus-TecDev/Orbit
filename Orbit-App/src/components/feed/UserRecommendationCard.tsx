@@ -20,6 +20,7 @@ type UserRecommendationCardProps = {
   onPass: () => void;
   onLike: () => void;
   onViewProfile: () => void;
+  onOpenProfile: () => void;
   loadingAction?: FeedAction | null;
 };
 
@@ -30,6 +31,7 @@ export default function UserRecommendationCard({
   onPass,
   onLike,
   onViewProfile,
+  onOpenProfile,
   loadingAction = null,
 }: UserRecommendationCardProps) {
   const showCompatibility = viewerMode !== "CASUAL";
@@ -38,29 +40,37 @@ export default function UserRecommendationCard({
 
   return (
     <OrbitCard elevated style={styles.card}>
-      <View style={[styles.photo, { backgroundColor: user.photoColor }]}>
-        {photoUrl ? (
-          <Image source={{ uri: photoUrl }} style={styles.photoImage} />
-        ) : (
-          <Text style={styles.initial}>{user.name.charAt(0)}</Text>
-        )}
-        <LinearGradient
-          pointerEvents="none"
-          colors={["rgba(255,255,255,0.10)", "rgba(0,0,0,0.10)", "rgba(0,0,0,0.72)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.7, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <View style={styles.photoMeta}>
-          <Text style={styles.intentPill}>{intentModeLabels[user.intentMode]}</Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={onOpenProfile}
+        style={({ pressed }) => [styles.photoPressable, pressed && styles.pressed]}
+      >
+        <View style={[styles.photo, { backgroundColor: user.photoColor }]}>
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.photoImage} />
+          ) : (
+            <Text style={styles.initial}>{user.name.charAt(0)}</Text>
+          )}
+          <LinearGradient
+            pointerEvents="none"
+            colors={["rgba(255,255,255,0.10)", "rgba(0,0,0,0.10)", "rgba(0,0,0,0.72)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.7, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <View style={styles.photoMeta}>
+            <Text style={styles.intentPill}>{intentModeLabels[user.intentMode]}</Text>
+          </View>
         </View>
-      </View>
+      </Pressable>
 
       <View style={styles.header}>
         <View style={styles.identity}>
-          <Text style={styles.name}>
-            {user.name}{user.age !== null ? `, ${user.age}` : ""}
-          </Text>
+          <Pressable accessibilityRole="button" onPress={onOpenProfile}>
+            <Text style={styles.name}>
+              {user.name}{user.age !== null ? `, ${user.age}` : ""}
+            </Text>
+          </Pressable>
           {user.city ? <Text style={styles.meta}>{user.city}</Text> : null}
         </View>
         {showCompatibility ? <CompatibilityBadge value={user.mutualScore} /> : null}
@@ -147,6 +157,9 @@ function getExplanationLabel(mode: IntentMode) {
 
 const styles = StyleSheet.create({
   card: { gap: theme.spacing.lg },
+  photoPressable: {
+    borderRadius: theme.radius.xl,
+  },
   photo: {
     height: 342,
     borderRadius: theme.radius.xl,
