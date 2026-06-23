@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import ConversationStarterCard from "../../components/conversation/ConversationStarterCard";
 import {
   OrbitButton,
   OrbitCard,
@@ -16,10 +17,17 @@ import { useAuth } from "../../contexts/AuthContext";
 import type { ChatScreenProps } from "../../navigation/types";
 import { getChatMessages, getChats, sendChatMessage } from "../../services/chatService";
 import { unmatchMatch } from "../../services/matchService";
+import { getPublicProfile } from "../../services/publicProfileService";
 import { blockUser, reportUser } from "../../services/safetyService";
 import { theme } from "../../styles/theme";
 import type { ChatMessage } from "../../types/chat";
 import { mapApiChatToChatPreview, mapApiMessageToChatMessage } from "../../types/chat";
+import {
+  buildConversationStarters,
+  hasEnoughStarterContext,
+  type ConversationStarter,
+  type ConversationStarterInput,
+} from "../../utils/conversationStarters";
 import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 export default function ChatScreen({ navigation, route }: ChatScreenProps) {
@@ -35,6 +43,7 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   const [participantPhotoUrl, setParticipantPhotoUrl] = useState<string | null>(null);
   const [participantUserId, setParticipantUserId] = useState(route.params.participantUserId ?? null);
   const [participantProfileId, setParticipantProfileId] = useState(route.params.participantProfileId ?? null);
+  const [starters, setStarters] = useState<ConversationStarter[]>([]);
   const [matchId, setMatchId] = useState(route.params.matchId ?? null);
   const [pendingAction, setPendingAction] = useState<PendingChatSafetyAction | null>(null);
 
@@ -67,9 +76,35 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
         setParticipantName(route.params.participantName ?? currentChat?.name ?? "Conversa");
         setParticipantPhotoUrl(currentChat?.photoUrl ?? null);
         setParticipantUserId(route.params.participantUserId ?? currentChat?.userId ?? null);
-        setParticipantProfileId(route.params.participantProfileId ?? currentChat?.profileId ?? null);
+        const nextProfileId = route.params.participantProfileId ?? currentChat?.profileId ?? null;
+        setParticipantProfileId(nextProfileId);
         setMatchId(route.params.matchId ?? currentChat?.matchId ?? null);
         setMessages(apiMessages.map((message) => mapApiMessageToChatMessage(message, user.id)));
+        const starterInput: ConversationStarterInput = {
+          interests: currentChat?.interests ?? [],
+          intentMode: currentChat?.intentMode ?? null,
+        };
+        if (!hasEnoughStarterContext(starterInput) && nextProfileId) {
+          try {
+            const publicProfile = await getPublicProfile(nextProfileId, token);
+            if (!isActive) {
+              return;
+            }
+            setStarters(buildConversationStarters({
+              interests: publicProfile.interests,
+              commonInterests: publicProfile.compatibility?.common_interests ?? [],
+              reasonGroups: publicProfile.compatibility?.reason_groups ?? [],
+              intentMode: publicProfile.intent_mode,
+            }));
+          } catch {
+            if (!isActive) {
+              return;
+            }
+            setStarters(buildConversationStarters(starterInput));
+          }
+        } else {
+          setStarters(buildConversationStarters(starterInput));
+        }
       } catch {
         if (!isActive) {
           return;
@@ -94,6 +129,10 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
   async function sendMessage() {
     const text = draft.trim();
 
+    await sendMessageText(text);
+  }
+
+  async function sendMessageText(text: string) {
     if (!text || sending) {
       return;
     }
@@ -174,11 +213,22 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
             <Text style={styles.feedbackText}>{feedback}</Text>
           </OrbitCard>
         ) : null}
+        {!loading && messages.length === 0 && starters.length > 0 ? (
+          <ConversationStarterCard
+            starters={starters}
+            sending={sending}
+            title="Quebre o gelo"
+            description="Uma pergunta curta ajuda a conversa a começar."
+            onSend={(text) => {
+              void sendMessageText(text);
+            }}
+          />
+        ) : null}
         {!loading && messages.length === 0 ? (
           <OrbitEmptyState
             icon={chatError ? "cloud-offline-outline" : "chatbubble-ellipses-outline"}
-            title="Conversa sem mensagens"
-            description="Quando vocês começarem a conversar, as mensagens aparecerão aqui."
+            title="A conversa ainda não começou"
+            description="Use uma sugestão curta ou mande algo simples sobre o perfil."
           />
         ) : null}
         {!loading
@@ -220,16 +270,6 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
           onPress={() => setPendingAction("block")}
         />
       </View>
-
-      <OrbitCard elevated style={styles.suggestion}>
-        <View style={styles.suggestionIcon}>
-          <Ionicons name="sparkles" color={theme.colors.purple} size={16} />
-        </View>
-        <Text style={styles.suggestionText}>
-          Use um interesse em comum ou uma pergunta leve para começar a conversa.
-        </Text>
-      </OrbitCard>
-
       <View style={styles.composer}>
         <TextInput
           value={draft}

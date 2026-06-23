@@ -17,6 +17,7 @@ export type ChatPreview = {
   time: string;
   photoUrl: string | null;
   shortBio: string | null;
+  intentMode: string | null;
   interests: string[];
   messages: ChatMessage[];
   isApiBacked?: boolean;
@@ -76,6 +77,7 @@ export function mapApiChatToChatPreview(chat: ApiChat, currentUserId: string): C
     time: formatChatTime(chat.last_message_at ?? chat.updated_at),
     photoUrl: participant?.photo_url ?? null,
     shortBio: participant?.short_bio ?? null,
+    intentMode: participant?.intent_mode ?? null,
     interests: participant?.interests ?? [],
     messages: [],
     isApiBacked: true,

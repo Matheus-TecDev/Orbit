@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Image, StyleSheet, Text, View } from "react-native";
 
 import CompatibilitySummaryCard from "../../components/compatibility/CompatibilitySummaryCard";
 import {
@@ -36,6 +36,7 @@ export default function PublicProfileScreen({ navigation, route }: PublicProfile
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const entrance = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let isActive = true;
@@ -73,6 +74,14 @@ export default function PublicProfileScreen({ navigation, route }: PublicProfile
     };
   }, [route.params.profileId, token]);
 
+  useEffect(() => {
+    Animated.timing(entrance, {
+      toValue: 1,
+      duration: 240,
+      useNativeDriver: true,
+    }).start();
+  }, [entrance]);
+
   const source = route.params.source;
 
   return (
@@ -93,8 +102,24 @@ export default function PublicProfileScreen({ navigation, route }: PublicProfile
         />
       ) : null}
       {profile ? (
-        <View style={styles.stack}>
+        <Animated.View
+          style={[
+            styles.stack,
+            {
+              opacity: entrance,
+              transform: [
+                {
+                  translateY: entrance.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [12, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
           <Hero profile={profile} />
+          <CompatibilitySection profile={profile} />
           <ProfileSection title="Bio">
             {profile.bio ? (
               <Text style={styles.bodyText}>{profile.bio}</Text>
@@ -113,7 +138,6 @@ export default function PublicProfileScreen({ navigation, route }: PublicProfile
               <Text style={styles.mutedText}>Interesses nÃ£o informados.</Text>
             )}
           </ProfileSection>
-          <CompatibilitySection profile={profile} />
           <ActionSection
             source={source}
             chatId={route.params.chatId ?? null}
@@ -140,7 +164,7 @@ export default function PublicProfileScreen({ navigation, route }: PublicProfile
             onBlock={() => setPendingAction("block")}
             onReport={() => setPendingAction("report")}
           />
-        </View>
+        </Animated.View>
       ) : null}
       <OrbitConfirmDialog
         visible={pendingAction !== null}

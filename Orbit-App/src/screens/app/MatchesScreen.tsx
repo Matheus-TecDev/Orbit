@@ -95,7 +95,7 @@ export default function MatchesScreen({ navigation }: MatchesScreenProps) {
           <OrbitEmptyState
             icon={matchesError ? "cloud-offline-outline" : "heart-outline"}
             title="Sem matches ainda"
-            description="Curta perfis no Feed. Quando houver interesse mútuo, o match aparecerá aqui."
+            description="Sua lista fica melhor quando você avalia a curadoria com calma. Um interesse mútuo aparece aqui."
             actionLabel="Ir para o Feed"
             onAction={() => navigation.navigate("Feed")}
           />
@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
   },
   matchCard: {
-    gap: theme.spacing.md,
-    padding: theme.spacing.md,
+    gap: theme.spacing.lg,
+    padding: theme.spacing.lg,
   },
   matchMain: {
     flexDirection: "row",
@@ -342,8 +342,8 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   avatar: {
-    width: 62,
-    height: 62,
+    width: 74,
+    height: 74,
     borderRadius: theme.radius.round,
     alignItems: "center",
     justifyContent: "center",
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   },
   name: {
     color: theme.colors.text,
-    fontSize: theme.typography.body,
+    fontSize: theme.typography.subheading,
     fontWeight: "500",
   },
   meta: {
